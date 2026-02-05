@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captain Dashboard | Fleet Command</title>
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- Auth Section -->
+    <div id="auth-section" class="auth-container">
+        <!-- Login Form -->
+        <div id="login-form" class="auth-card">
+            <div class="auth-header">
+                <i class="fas fa-ship"></i>
+                <h2>Captain Login</h2>
+                <p>Enter your credentials to board</p>
+            </div>
+            <form id="form-login">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="login-email" required placeholder="name@vessel.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Sign In</button>
+            </form>
+            <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted); font-size: 0.875rem;">
+                New Captain? <a href="#" id="show-register" style="color: var(--primary); font-weight: 600;">Apply for
+                    access</a>
+            </p>
+        </div>
+
+        <!-- Register Form -->
+        <div id="register-form" class="auth-card hidden">
+            <div class="auth-header">
+                <i class="fas fa-user-plus"></i>
+                <h2>Vessel Registration</h2>
+                <p>Register your vessel to our fleet</p>
+            </div>
+            <form id="form-register">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="reg-name" required placeholder="Captain John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="reg-email" required placeholder="vessel@company.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="reg-password" required placeholder="Min. 6 characters">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Complete
+                    Registration</button>
+            </form>
+            <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted); font-size: 0.875rem;">
+                Already registered? <a href="#" id="show-login" style="color: var(--primary); font-weight: 600;">Sign in
+                    here</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboard-section" class="app-container hidden">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="ship-icon"><i class="fas fa-anchor"></i></div>
+                <div>
+                    <h2 style="font-size: 1rem; font-weight: 800;">COMMAND</h2>
+                    <p style="font-size: 0.7rem; color: var(--text-muted);">MV OCEAN STAR</p>
+                </div>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="nav-item active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="#" class="nav-item"><i class="fas fa-file-invoice"></i> Reports</a>
+                <a href="#" class="nav-item"><i class="fas fa-oil-can"></i> Fuel Logistics</a>
+                <a href="#" class="nav-item"><i class="fas fa-users"></i> Crew List</a>
+                <a href="#" class="nav-item"><i class="fas fa-cog"></i> Settings</a>
+            </div>
+            <div style="padding: 1rem; border-top: 1px solid #f1f5f9;">
+                <button id="btn-logout" class="btn btn-outline" style="width: 100%;">
+                    <i class="fas fa-sign-out-alt"></i> Leave Bridge
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header>
+                <div class="page-title">
+                    <h1 id="welcome-text">Fleet Dashboard</h1>
+                </div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="avatar"><i class="fas fa-user-tie"></i></div>
+                        <span id="user-display-name">Captain</span>
+                    </div>
+                </div>
+            </header>
+
+            <main class="dashboard-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-label">Main Engine Status</span>
+                        <span class="stat-value">Running</span>
+                        <div class="stat-footer positive"><i class="fas fa-check-circle"></i> Optimal performance</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">HFO Inventory</span>
+                        <span class="stat-value">450.5 mt</span>
+                        <div class="stat-footer"><i class="fas fa-clock"></i> 32 Days remaining</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Current Position</span>
+                        <span class="stat-value">01.35° N, 103.81° E</span>
+                        <div class="stat-footer" style="color: var(--primary);"><i class="fas fa-map-marker-alt"></i>
+                            Malacca Strait</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-cols: 2fr 1fr; gap: 1.5rem;">
+                    <div class="card" style="background: white; padding: 2rem; border-radius: 12px;">
+                        <h3 style="margin-bottom: 1.5rem;">Quick System Check</h3>
+                        <div style="display: grid; grid-template-cols: repeat(2, 1fr); gap: 1rem;">
+                            <button class="btn btn-outline check-btn" data-system="Navigation">Navigation Sys</button>
+                            <button class="btn btn-outline check-btn" data-system="Propulsion">Propulsion Unit</button>
+                            <button class="btn btn-outline check-btn" data-system="Generator">Gen Set 1</button>
+                            <button class="btn btn-outline check-btn" data-system="Communications">Satcom A</button>
+                        </div>
+                    </div>
+
+                    <div class="card" style="background: white; padding: 2rem; border-radius: 12px;">
+                        <h3 style="margin-bottom: 1rem;">Vessel Alerts</h3>
+                        <div
+                            style="padding: 1rem; background: #fff7ed; border-left: 4px solid var(--warning); border-radius: 4px; margin-bottom: 0.5rem;">
+                            <p style="font-size: 0.8rem; font-weight: 700;">Noon Report Due</p>
+                            <p style="font-size: 0.7rem; color: var(--text-muted);">Please submit by 12:00 UTC</p>
+                        </div>
+                        <div style="padding: 1rem; background: #fef2f2; border-left: 4px solid var(--danger); border-radius: 4px;"
+                            class="alert-pulse">
+                            <p style="font-size: 0.8rem; font-weight: 700; color: var(--danger);">Bunker Low-Level</p>
+                            <p style="font-size: 0.7rem; color: var(--text-muted);">Aux Engine 2 Service Tank</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="app.js"></script>
+</body>
+
+</html>

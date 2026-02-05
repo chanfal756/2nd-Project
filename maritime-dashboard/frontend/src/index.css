@@ -1,0 +1,213 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+/* Custom Styles from ship.html */
+:root {
+  --primary: #1e40af;
+  --secondary: #0ea5e9;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --dark: #1f2937;
+  --light: #f8fafc;
+  --ship-blue: #1e3a8a;
+  --ocean-blue: #0369a1;
+  --navy-dark: #0f172a;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  min-height: 100vh;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  background: linear-gradient(90deg, var(--ship-blue), var(--ocean-blue));
+  color: white;
+  padding: 1.25rem 1.5rem;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-left: 4px solid var(--primary);
+}
+
+.stat-card.warning { border-left-color: var(--warning); }
+.stat-card.danger { border-left-color: var(--danger); }
+.stat-card.success { border-left-color: var(--success); }
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  color: #4b5563;
+  border-radius: 8px;
+  transition: all 0.2s;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  background: #f1f5f9;
+  color: var(--primary);
+}
+
+.nav-link.active {
+  background: linear-gradient(90deg, rgba(30, 64, 175, 0.1), rgba(14, 165, 233, 0.1));
+  color: var(--primary);
+  border-right: 3px solid var(--primary);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.ship-icon {
+  background: linear-gradient(135deg, var(--ship-blue), var(--ocean-blue));
+  color: white;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.ship-header {
+  background: linear-gradient(135deg, var(--navy-dark), var(--ship-blue));
+  color: white;
+}
+
+.status-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+}
+.status-online { background: #10b981; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2); }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.badge-primary { background: #dbeafe; color: #1e40af; }
+.badge-success { background: #d1fae5; color: #065f46; }
+
+.notification-dot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 12px;
+  height: 12px;
+  background: var(--danger);
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+/* Animations */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.loading {
+  animation: spin 1s linear infinite;
+}
+
+/* Dark Mode Overrides */
+.dark body {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #f8fafc;
+}
+
+.dark .card {
+  background: #1f2937;
+  border-color: #374151;
+  color: #f3f4f6;
+}
+
+.dark .card h3, .dark .card h4 {
+  color: #f9fafb !important; /* Force headers to be white/light in cards */
+}
+
+.dark .nav-link {
+  color: #9ca3af;
+}
+
+.dark .nav-link:hover {
+  background: #374151;
+  color: #60a5fa;
+}
+
+.dark .nav-link.active {
+  background: rgba(30, 64, 175, 0.2);
+  color: #60a5fa;
+}
+
+.dark .btn-secondary {
+  background: #374151;
+  color: #e5e7eb;
+}
+
+.dark .btn-secondary:hover {
+  background: #4b5563;
+}
+
+.dark .ship-header {
+  background: linear-gradient(135deg, #020617, #0f172a);
+}
+
+.dark .border-gray-200 {
+  border-color: #374151;
+}

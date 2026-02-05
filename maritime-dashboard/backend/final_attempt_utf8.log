@@ -1,0 +1,65 @@
+﻿≡ƒöä Attempting to connect to MongoDB...
+ΓÜá∩╕Å  Mongoose disconnected from MongoDB
+node : ΓÜá∩╕Å  Local MongoDB 
+Connection Failed: connect 
+ECONNREFUSED ::1:27017, 
+connect ECONNREFUSED 
+127.0.0.1:27017
+At line:1 char:1
++ node server.js > 
+final_attempt.log 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: (ΓÜá∩╕Å   
+   Local M...127.0.0.1:270   
+ 17:String) [], RemoteExc    
+eption
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+≡ƒöä Starting MongoDB Memory Server for development...
+Γ¥î Failed to start MongoDB 
+Memory Server: Error: Cannot 
+find module 
+'mongodb-memory-server'
+Require stack:
+- C:\Users\Anfal\Desktop\2nd 
+Project\maritime-dashboard\ba
+ckend\src\config\db.js
+- C:\Users\Anfal\Desktop\2nd 
+Project\maritime-dashboard\ba
+ckend\server.js
+    at 
+Function._resolveFilename (no
+de:internal/modules/cjs/loade
+r:1383:15)
+    at defaultResolveImpl (no
+de:internal/modules/cjs/loade
+r:1025:19)
+    at 
+resolveForCJSWithHooks (node:
+internal/modules/cjs/loader:1
+030:22)
+    at Function._load (node:i
+nternal/modules/cjs/loader:11
+92:37)
+    at 
+TracingChannel.traceSync (nod
+e:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:i
+nternal/modules/cjs/loader:23
+7:24)
+    at Module.require (node:i
+nternal/modules/cjs/loader:14
+63:12)
+    at require (node:internal
+/modules/helpers:147:16)
+    at connectDB 
+(C:\Users\Anfal\Desktop\2nd P
+roject\maritime-dashboard\bac
+kend\src\config\db.js:24:39)
+    at async startServer 
+(C:\Users\Anfal\Desktop\2nd P
+roject\maritime-dashboard\bac
+kend\server.js:19:5)

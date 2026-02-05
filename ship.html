@@ -1,0 +1,3133 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captain Dashboard - MV Ocean Star</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- ApexCharts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    
+    <!-- Date Picker -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary: #1e40af;
+            --secondary: #0ea5e9;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --light: #f8fafc;
+            --ship-blue: #1e3a8a;
+            --ocean-blue: #0369a1;
+            --navy-dark: #0f172a;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            min-height: 100vh;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            background: linear-gradient(90deg, var(--ship-blue), var(--ocean-blue));
+            color: white;
+            padding: 1.25rem 1.5rem;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .stat-card.warning {
+            border-left-color: var(--warning);
+        }
+        
+        .stat-card.danger {
+            border-left-color: var(--danger);
+        }
+        
+        .stat-card.success {
+            border-left-color: var(--success);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge-primary {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: #4b5563;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            background: #f1f5f9;
+            color: var(--primary);
+        }
+        
+        .nav-link.active {
+            background: linear-gradient(90deg, rgba(30, 64, 175, 0.1), rgba(14, 165, 233, 0.1));
+            color: var(--primary);
+            border-right: 3px solid var(--primary);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            outline: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+        }
+        
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+        
+        .btn-success {
+            background: linear-gradient(90deg, #10b981, #34d399);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .table-row {
+            transition: background 0.2s;
+        }
+        
+        .table-row:hover {
+            background: #f8fafc;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #e5e7eb;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        
+        .ship-icon {
+            background: linear-gradient(135deg, var(--ship-blue), var(--ocean-blue));
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .weather-card {
+            background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+            color: white;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .map-container {
+            background: #f1f5f9;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .map-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+        }
+        
+        .notification-dot {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 12px;
+            height: 12px;
+            background: var(--danger);
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+        
+        .step-indicator {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+        
+        .step-indicator.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .step-indicator.completed {
+            background: var(--success);
+            color: white;
+        }
+        
+        .step-line {
+            height: 2px;
+            flex-grow: 1;
+            background: #e5e7eb;
+            margin: 0 8px;
+        }
+        
+        .step-line.completed {
+            background: var(--success);
+        }
+        
+        .consumption-row td {
+            padding: 12px 8px;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+        
+        .select-field {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .select-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .alert-warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            color: #92400e;
+        }
+        
+        .alert-danger {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            color: #065f46;
+        }
+        
+        .alert-info {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            color: #1e40af;
+        }
+        
+        .scrollbar-thin {
+            scrollbar-width: thin;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .slide-in-right {
+            animation: slideInRight 0.3s ease-out;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .blink {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .ship-header {
+            background: linear-gradient(135deg, var(--navy-dark), var(--ship-blue));
+            color: white;
+        }
+        
+        .ocean-wave {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ocean-wave::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, rgba(14, 165, 233, 0.5), transparent);
+            animation: wave 3s linear infinite;
+        }
+        
+        @keyframes wave {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        
+        .status-online {
+            background: #10b981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+        }
+        
+        .status-offline {
+            background: #6b7280;
+        }
+        
+        .status-warning {
+            background: #f59e0b;
+            animation: blink 1s infinite;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .mobile-menu {
+                display: block;
+            }
+            
+            .desktop-menu {
+                display: none;
+            }
+            
+            .mobile-hidden {
+                display: none;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .mobile-menu {
+                display: none;
+            }
+            
+            .desktop-menu {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+    <!-- Mobile Menu Button -->
+    <div class="mobile-menu fixed top-4 left-4 z-50">
+        <button id="mobileMenuBtn" class="p-3 bg-white rounded-xl shadow-lg">
+            <i class="fas fa-bars text-xl text-blue-600"></i>
+        </button>
+    </div>
+    
+    <!-- Mobile Sidebar -->
+    <div id="mobileSidebar" class="fixed inset-0 z-40 hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-50" onclick="toggleMobileSidebar()"></div>
+        <div class="absolute left-0 top-0 bottom-0 w-72 bg-white shadow-2xl animate__animated animate__slideInLeft">
+            <!-- Mobile Sidebar Content -->
+            <div class="p-6">
+                <!-- Mobile Header -->
+                <div class="flex items-center justify-between mb-8">
+                    <div class="flex items-center space-x-3">
+                        <div class="ship-icon">
+                            <i class="fas fa-ship"></i>
+                        </div>
+                        <div>
+                            <h1 class="font-bold text-lg">Captain Dashboard</h1>
+                            <p class="text-sm text-gray-600">MV Ocean Star</p>
+                        </div>
+                    </div>
+                    <button onclick="toggleMobileSidebar()" class="p-2 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-times text-lg text-gray-600"></i>
+                    </button>
+                </div>
+                
+                <!-- Mobile Navigation -->
+                <nav class="space-y-1">
+                    <a href="#" class="nav-link active" onclick="navigateTo('dashboard')">
+                        <i class="fas fa-tachometer-alt w-6 mr-3"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="nav-link" onclick="navigateTo('daily-report')">
+                        <i class="fas fa-file-alt w-6 mr-3"></i>
+                        <span>Daily Report</span>
+                    </a>
+                    <a href="#" class="nav-link" onclick="navigateTo('inventory')">
+                        <i class="fas fa-oil-can w-6 mr-3"></i>
+                        <span>Oil Inventory</span>
+                    </a>
+                    <a href="#" class="nav-link" onclick="navigateTo('navigation')">
+                        <i class="fas fa-map-marked-alt w-6 mr-3"></i>
+                        <span>Navigation</span>
+                    </a>
+                    <a href="#" class="nav-link" onclick="navigateTo('crew')">
+                        <i class="fas fa-users w-6 mr-3"></i>
+                        <span>Crew Management</span>
+                    </a>
+                    <a href="#" class="nav-link" onclick="navigateTo('alerts')">
+                        <i class="fas fa-bell w-6 mr-3"></i>
+                        <span>Alerts</span>
+                        <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">3</span>
+                    </a>
+                    <a href="#" class="nav-link" onclick="navigateTo('settings')">
+                        <i class="fas fa-cog w-6 mr-3"></i>
+                        <span>Settings</span>
+                    </a>
+                </nav>
+                
+                <!-- Mobile User Info -->
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-blue-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium">Capt. John Smith</p>
+                            <p class="text-sm text-gray-600">Master - MV Ocean Star</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Container -->
+    <div class="min-h-screen flex">
+        <!-- Desktop Sidebar -->
+        <div class="desktop-menu w-72 bg-white border-r border-gray-200 hidden md:block">
+            <div class="h-full flex flex-col">
+                <!-- Sidebar Header -->
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center space-x-3">
+                        <div class="ship-icon">
+                            <i class="fas fa-ship"></i>
+                        </div>
+                        <div>
+                            <h1 class="font-bold text-lg">Captain Dashboard</h1>
+                            <p class="text-sm text-gray-600">MV Ocean Star</p>
+                            <div class="flex items-center mt-1">
+                                <span class="status-indicator status-online"></span>
+                                <span class="text-xs text-gray-500">Online</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Navigation -->
+                <nav class="flex-1 p-4 space-y-1">
+                    <a href="#" class="nav-link active" onclick="navigateTo('dashboard')">
+                        <i class="fas fa-tachometer-alt w-6 mr-3"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="nav-link" onclick="navigateTo('daily-report')">
+                        <i class="fas fa-file-alt w-6 mr-3"></i>
+                        <span>Daily Report</span>
+                    </a>
+                    <a href="#" class="nav-link" onclick="navigateTo('inventory')">
+                        <i class="fas fa-oil-can w-6 mr-3"></i>
+                        <span>Oil Inventory</span>
+                    </a>
+                    <a href="#" class="nav-link" onclick="navigateTo('navigation')">
+                        <i class="fas fa-map-marked-alt w-6 mr-3"></i>
+                        <span>Navigation</span>
+                    </a>
+                    <a href="#" class="nav-link" onclick="navigateTo('crew')">
+                        <i class="fas fa-users w-6 mr-3"></i>
+                        <span>Crew Management</span>
+                    </a>
+                    <a href="#" class="nav-link" onclick="navigateTo('maintenance')">
+                        <i class="fas fa-tools w-6 mr-3"></i>
+                        <span>Maintenance</span>
+                    </a>
+                    <a href="#" class="nav-link" onclick="navigateTo('alerts')">
+                        <i class="fas fa-bell w-6 mr-3"></i>
+                        <span>Alerts</span>
+                        <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full pulse">3</span>
+                    </a>
+                    <a href="#" class="nav-link" onclick="navigateTo('communications')">
+                        <i class="fas fa-satellite-dish w-6 mr-3"></i>
+                        <span>Communications</span>
+                    </a>
+                    <a href="#" class="nav-link" onclick="navigateTo('documents')">
+                        <i class="fas fa-file-contract w-6 mr-3"></i>
+                        <span>Documents</span>
+                    </a>
+                    <a href="#" class="nav-link" onclick="navigateTo('settings')">
+                        <i class="fas fa-cog w-6 mr-3"></i>
+                        <span>Settings</span>
+                    </a>
+                </nav>
+                
+                <!-- User Profile -->
+                <div class="p-4 border-t border-gray-200">
+                    <div class="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-blue-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-medium">Capt. John Smith</p>
+                            <p class="text-sm text-gray-600">Master - MV Ocean Star</p>
+                        </div>
+                        <button onclick="logout()" class="p-2 hover:bg-blue-100 rounded-lg">
+                            <i class="fas fa-sign-out-alt text-gray-600"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Header -->
+            <header class="ship-header">
+                <div class="px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-xl font-bold" id="pageTitle">Captain's Dashboard</h2>
+                            <p class="text-blue-200" id="pageSubtitle">Welcome back, Captain Smith</p>
+                        </div>
+                        
+                        <div class="flex items-center space-x-4">
+                            <!-- Date & Time -->
+                            <div class="hidden md:block bg-blue-800/30 px-4 py-2 rounded-lg">
+                                <div class="flex items-center space-x-2">
+                                    <i class="far fa-clock"></i>
+                                    <div>
+                                        <p class="text-sm font-medium" id="currentTime">14:30 UTC</p>
+                                        <p class="text-xs text-blue-300" id="currentDate">October 15, 2023</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Weather -->
+                            <div class="hidden md:block bg-blue-800/30 px-4 py-2 rounded-lg">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-sun text-yellow-300"></i>
+                                    <div>
+                                        <p class="text-sm font-medium">28°C / 82°F</p>
+                                        <p class="text-xs text-blue-300">Clear, 12 knots</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Quick Actions -->
+                            <div class="flex space-x-2">
+                                <button class="btn btn-primary" onclick="navigateTo('daily-report')">
+                                    <i class="fas fa-plus mr-2"></i> New Report
+                                </button>
+                                <button class="btn btn-secondary relative" onclick="toggleNotifications()">
+                                    <i class="fas fa-bell"></i>
+                                    <span class="notification-dot"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Ship Status Bar -->
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <div class="badge badge-success">
+                            <i class="fas fa-check-circle mr-1"></i> All Systems OK
+                        </div>
+                        <div class="badge badge-primary">
+                            <i class="fas fa-anchor mr-1"></i> Underway
+                        </div>
+                        <div class="badge badge-primary">
+                            <i class="fas fa-map-marker-alt mr-1"></i> Position: 1.3521° N, 103.8198° E
+                        </div>
+                        <div class="badge badge-primary">
+                            <i class="fas fa-tachometer-alt mr-1"></i> Speed: 12.5 knots
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Page Content -->
+            <main class="flex-1 overflow-y-auto p-6">
+                <!-- Dashboard Page (Default) -->
+                <div id="dashboardPage" class="space-y-6">
+                    <!-- Alert Banner -->
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle mr-3 text-lg"></i>
+                        <div>
+                            <p class="font-medium">Daily report due in 2 hours</p>
+                            <p class="text-sm mt-1">Please submit today's oil consumption report by 23:59 UTC</p>
+                        </div>
+                        <button class="ml-auto btn btn-primary btn-sm" onclick="navigateTo('daily-report')">
+                            Submit Now
+                        </button>
+                    </div>
+                    
+                    <!-- Stats Overview -->
+                    <div class="dashboard-grid">
+                        <!-- Ship Status -->
+                        <div class="card stat-card">
+                            <div class="p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-800">Ship Status</h3>
+                                        <p class="text-sm text-gray-600">Current operational status</p>
+                                    </div>
+                                    <div class="ship-icon">
+                                        <i class="fas fa-ship"></i>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">Engine Status</span>
+                                        <span class="badge badge-success">Running</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">Navigation</span>
+                                        <span class="badge badge-success">Auto-pilot</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">Weather</span>
+                                        <span class="badge badge-primary">Calm</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">Next Port</span>
+                                        <span class="font-medium">Singapore (ETA: 18h)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Oil Consumption -->
+                        <div class="card stat-card warning">
+                            <div class="p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-800">Oil Consumption</h3>
+                                        <p class="text-sm text-gray-600">Today's usage</p>
+                                    </div>
+                                    <div class="p-3 bg-yellow-100 rounded-lg">
+                                        <i class="fas fa-oil-can text-yellow-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-gray-600">Total Consumption</span>
+                                        <span class="text-2xl font-bold">245.8 <span class="text-lg">L</span></span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill bg-yellow-500" style="width: 65%"></div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <p class="text-gray-600">HFO</p>
+                                        <p class="font-medium">180.5 L</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-600">MGO</p>
+                                        <p class="font-medium">45.2 L</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-600">LO</p>
+                                        <p class="font-medium">15.8 L</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-600">HYD</p>
+                                        <p class="font-medium">4.3 L</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Inventory Status -->
+                        <div class="card stat-card danger">
+                            <div class="p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-800">Inventory Alerts</h3>
+                                        <p class="text-sm text-gray-600">Low stock items</p>
+                                    </div>
+                                    <div class="p-3 bg-red-100 rounded-lg">
+                                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                                        <div>
+                                            <p class="font-medium">Cylinder Oil SAE 40</p>
+                                            <p class="text-sm text-gray-600">Tank 3</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="font-bold text-red-600">45.8 L</p>
+                                            <p class="text-xs text-gray-500">Min: 50 L</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                                        <div>
+                                            <p class="font-medium">Hydraulic Oil</p>
+                                            <p class="text-sm text-gray-600">Tank 5</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="font-bold text-yellow-600">85.5 L</p>
+                                            <p class="text-xs text-gray-500">Min: 100 L</p>
+                                        </div>
+                                    </div>
+                                    <button class="w-full btn btn-outline mt-2" onclick="navigateTo('inventory')">
+                                        View All Inventory
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Weather & Sea Conditions -->
+                        <div class="card weather-card">
+                            <div class="p-6">
+                                <div class="flex items-center justify-between mb-6">
+                                    <div>
+                                        <h3 class="text-lg font-semibold">Weather & Sea</h3>
+                                        <p class="text-blue-100">Current conditions</p>
+                                    </div>
+                                    <i class="fas fa-sun text-3xl text-yellow-300"></i>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-blue-200">Wind Speed</p>
+                                        <p class="text-2xl font-bold">12 <span class="text-lg">knots</span></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-blue-200">Wave Height</p>
+                                        <p class="text-2xl font-bold">1.2 <span class="text-lg">m</span></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-blue-200">Temperature</p>
+                                        <p class="text-2xl font-bold">28° <span class="text-lg">C</span></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-blue-200">Visibility</p>
+                                        <p class="text-2xl font-bold">10 <span class="text-lg">nm</span></p>
+                                    </div>
+                                </div>
+                                <div class="mt-6 pt-4 border-t border-blue-300/30">
+                                    <p class="text-blue-200 mb-2">Weather Forecast (Next 12h)</p>
+                                    <div class="flex justify-between text-sm">
+                                        <div class="text-center">
+                                            <p class="font-medium">Now</p>
+                                            <i class="fas fa-sun text-yellow-300 text-lg my-2"></i>
+                                            <p>28°C</p>
+                                        </div>
+                                        <div class="text-center">
+                                            <p class="font-medium">+3h</p>
+                                            <i class="fas fa-cloud-sun text-gray-300 text-lg my-2"></i>
+                                            <p>27°C</p>
+                                        </div>
+                                        <div class="text-center">
+                                            <p class="font-medium">+6h</p>
+                                            <i class="fas fa-cloud text-gray-400 text-lg my-2"></i>
+                                            <p>26°C</p>
+                                        </div>
+                                        <div class="text-center">
+                                            <p class="font-medium">+9h</p>
+                                            <i class="fas fa-cloud-rain text-blue-300 text-lg my-2"></i>
+                                            <p>25°C</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Charts and Recent Activity -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Consumption Chart -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="text-lg font-semibold">Oil Consumption Trend</h3>
+                                <p class="text-blue-100">Last 7 days</p>
+                            </div>
+                            <div class="p-6">
+                                <canvas id="consumptionChart" height="250"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Recent Reports -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="text-lg font-semibold">Recent Reports</h3>
+                                <p class="text-blue-100">Last 5 daily reports</p>
+                            </div>
+                            <div class="p-6">
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div>
+                                            <p class="font-medium">Today</p>
+                                            <p class="text-sm text-gray-600">245.8 L consumed</p>
+                                        </div>
+                                        <span class="badge badge-warning">Pending</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3">
+                                        <div>
+                                            <p class="font-medium">Yesterday</p>
+                                            <p class="text-sm text-gray-600">198.2 L consumed</p>
+                                        </div>
+                                        <span class="badge badge-success">Submitted</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3">
+                                        <div>
+                                            <p class="font-medium">Oct 13</p>
+                                            <p class="text-sm text-gray-600">215.5 L consumed</p>
+                                        </div>
+                                        <span class="badge badge-success">Submitted</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3">
+                                        <div>
+                                            <p class="font-medium">Oct 12</p>
+                                            <p class="text-sm text-gray-600">230.8 L consumed</p>
+                                        </div>
+                                        <span class="badge badge-success">Verified</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3">
+                                        <div>
+                                            <p class="font-medium">Oct 11</p>
+                                            <p class="text-sm text-gray-600">175.3 L consumed</p>
+                                        </div>
+                                        <span class="badge badge-success">Verified</span>
+                                    </div>
+                                </div>
+                                <button class="w-full btn btn-secondary mt-4" onclick="navigateTo('daily-report')">
+                                    View All Reports
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions Grid -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="text-lg font-semibold">Quick Actions</h3>
+                            <p class="text-blue-100">Frequently used functions</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <button class="flex flex-col items-center p-4 border border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50 transition" onclick="navigateTo('daily-report')">
+                                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                                        <i class="fas fa-file-alt text-blue-600 text-xl"></i>
+                                    </div>
+                                    <span class="font-medium text-gray-800">Daily Report</span>
+                                    <span class="text-xs text-gray-500 mt-1">Submit now</span>
+                                </button>
+                                
+                                <button class="flex flex-col items-center p-4 border border-gray-200 rounded-xl hover:border-green-300 hover:bg-green-50 transition" onclick="navigateTo('inventory')">
+                                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3">
+                                        <i class="fas fa-oil-can text-green-600 text-xl"></i>
+                                    </div>
+                                    <span class="font-medium text-gray-800">Inventory</span>
+                                    <span class="text-xs text-gray-500 mt-1">Check stock</span>
+                                </button>
+                                
+                                <button class="flex flex-col items-center p-4 border border-gray-200 rounded-xl hover:border-purple-300 hover:bg-purple-50 transition" onclick="showShipPosition()">
+                                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-3">
+                                        <i class="fas fa-map-marker-alt text-purple-600 text-xl"></i>
+                                    </div>
+                                    <span class="font-medium text-gray-800">Position</span>
+                                    <span class="text-xs text-gray-500 mt-1">View on map</span>
+                                </button>
+                                
+                                <button class="flex flex-col items-center p-4 border border-gray-200 rounded-xl hover:border-red-300 hover:bg-red-50 transition" onclick="emergencyAlert()">
+                                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-3">
+                                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                                    </div>
+                                    <span class="font-medium text-gray-800">Emergency</span>
+                                    <span class="text-xs text-gray-500 mt-1">Alert bridge</span>
+                                </button>
+                                
+                                <button class="flex flex-col items-center p-4 border border-gray-200 rounded-xl hover:border-yellow-300 hover:bg-yellow-50 transition" onclick="navigateTo('crew')">
+                                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-3">
+                                        <i class="fas fa-users text-yellow-600 text-xl"></i>
+                                    </div>
+                                    <span class="font-medium text-gray-800">Crew Watch</span>
+                                    <span class="text-xs text-gray-500 mt-1">On duty: 8</span>
+                                </button>
+                                
+                                <button class="flex flex-col items-center p-4 border border-gray-200 rounded-xl hover:border-indigo-300 hover:bg-indigo-50 transition" onclick="navigateTo('communications')">
+                                    <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mb-3">
+                                        <i class="fas fa-satellite-dish text-indigo-600 text-xl"></i>
+                                    </div>
+                                    <span class="font-medium text-gray-800">Comms</span>
+                                    <span class="text-xs text-gray-500 mt-1">Send message</span>
+                                </button>
+                                
+                                <button class="flex flex-col items-center p-4 border border-gray-200 rounded-xl hover:border-pink-300 hover:bg-pink-50 transition" onclick="showWeatherReport()">
+                                    <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mb-3">
+                                        <i class="fas fa-cloud-sun text-pink-600 text-xl"></i>
+                                    </div>
+                                    <span class="font-medium text-gray-800">Weather</span>
+                                    <span class="text-xs text-gray-500 mt-1">Full report</span>
+                                </button>
+                                
+                                <button class="flex flex-col items-center p-4 border border-gray-200 rounded-xl hover:border-teal-300 hover:bg-teal-50 transition" onclick="navigateTo('maintenance')">
+                                    <div class="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mb-3">
+                                        <i class="fas fa-tools text-teal-600 text-xl"></i>
+                                    </div>
+                                    <span class="font-medium text-gray-800">Maintenance</span>
+                                    <span class="text-xs text-gray-500 mt-1">Check schedule</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Daily Report Page -->
+                <div id="dailyReportPage" class="hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between">
+                                <div>
+                                    <h3 class="text-lg font-semibold">Daily Oil Consumption Report</h3>
+                                    <p class="text-blue-100">Submit today's oil usage and voyage data</p>
+                                </div>
+                                <div class="mt-2 md:mt-0">
+                                    <span class="badge badge-warning">Draft - Auto-saved 2 min ago</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Report Steps -->
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center justify-between max-w-3xl mx-auto">
+                                <div class="flex items-center">
+                                    <div class="step-indicator completed">1</div>
+                                    <span class="ml-2 font-medium text-sm">Voyage Data</span>
+                                </div>
+                                <div class="step-line completed"></div>
+                                <div class="flex items-center">
+                                    <div class="step-indicator active">2</div>
+                                    <span class="ml-2 font-medium text-sm">Oil Consumption</span>
+                                </div>
+                                <div class="step-line"></div>
+                                <div class="flex items-center">
+                                    <div class="step-indicator">3</div>
+                                    <span class="ml-2 font-medium text-sm">Review & Submit</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Report Content -->
+                        <div class="p-6">
+                            <!-- Step 1: Voyage Data -->
+                            <div id="reportStep1" class="space-y-6">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle mr-3"></i>
+                                    <p>Please complete all voyage data for today's report</p>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Current Location / Port</label>
+                                        <input type="text" class="input-field" placeholder="Enter current location" value="Singapore Port">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Coordinates</label>
+                                        <div class="flex space-x-2">
+                                            <input type="text" class="input-field" placeholder="Latitude" value="1.3521">
+                                            <input type="text" class="input-field" placeholder="Longitude" value="103.8198">
+                                            <button class="btn btn-secondary" onclick="getCurrentLocation()">
+                                                <i class="fas fa-map-marker-alt"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Weather Conditions</label>
+                                        <select class="select-field">
+                                            <option value="">Select Weather</option>
+                                            <option value="calm" selected>Calm</option>
+                                            <option value="moderate">Moderate</option>
+                                            <option value="rough">Rough</option>
+                                            <option value="stormy">Stormy</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Sea State</label>
+                                        <select class="select-field">
+                                            <option value="">Select Sea State</option>
+                                            <option value="calm" selected>Calm (0-1)</option>
+                                            <option value="slight">Slight (1-2)</option>
+                                            <option value="moderate">Moderate (3-4)</option>
+                                            <option value="rough">Rough (5-6)</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Distance Today (NM)</label>
+                                        <input type="number" class="input-field" value="125.5">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Engine Hours Today</label>
+                                        <input type="number" class="input-field" value="8.5">
+                                    </div>
+                                    
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Remarks</label>
+                                        <textarea class="input-field" rows="3" placeholder="Any additional notes or observations...">Smooth sailing, good weather conditions throughout the day. No incidents to report.</textarea>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-end pt-4">
+                                    <button class="btn btn-primary" onclick="nextReportStep(2)">
+                                        Next: Oil Consumption <i class="fas fa-arrow-right ml-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Step 2: Oil Consumption -->
+                            <div id="reportStep2" class="hidden">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle mr-3"></i>
+                                    <p>Enter opening and closing readings for all oil types</p>
+                                </div>
+                                
+                                <div class="overflow-x-auto mb-6">
+                                    <table class="w-full">
+                                        <thead>
+                                            <tr class="bg-gray-50">
+                                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Oil Type</th>
+                                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Tank No.</th>
+                                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Opening (L)</th>
+                                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Closing (L)</th>
+                                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Consumption (L)</th>
+                                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">System</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="consumption-row">
+                                                <td class="px-4 py-3">
+                                                    <div class="font-medium">Heavy Fuel Oil</div>
+                                                    <div class="text-sm text-gray-500">HFO 380cSt</div>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <input type="text" class="input-field text-sm" value="T1">
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <input type="number" class="input-field text-sm" value="1250.5" onchange="calculateConsumption(this)">
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <input type="number" class="input-field text-sm" value="1070.0" onchange="calculateConsumption(this)">
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <input type="number" class="input-field text-sm bg-gray-50" value="180.5" readonly>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <select class="select-field text-sm">
+                                                        <option value="main_engine" selected>Main Engine</option>
+                                                        <option value="aux_engine">Aux Engine</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                            <tr class="consumption-row">
+                                                <td class="px-4 py-3">
+                                                    <div class="font-medium">Marine Gas Oil</div>
+                                                    <div class="text-sm text-gray-500">MGO</div>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <input type="text" class="input-field text-sm" value="T2">
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <input type="number" class="input-field text-sm" value="850.2" onchange="calculateConsumption(this)">
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <input type="number" class="input-field text-sm" value="805.0" onchange="calculateConsumption(this)">
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <input type="number" class="input-field text-sm bg-gray-50" value="45.2" readonly>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <select class="select-field text-sm">
+                                                        <option value="aux_engine" selected>Aux Engine</option>
+                                                        <option value="generator">Generator</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                            <tr class="consumption-row">
+                                                <td class="px-4 py-3">
+                                                    <div class="font-medium">Cylinder Oil</div>
+                                                    <div class="text-sm text-gray-500">SAE 40</div>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <input type="text" class="input-field text-sm" value="T3">
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <input type="number" class="input-field text-sm" value="45.8" onchange="calculateConsumption(this)">
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <input type="number" class="input-field text-sm" value="30.0" onchange="calculateConsumption(this)">
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <input type="number" class="input-field text-sm bg-gray-50" value="15.8" readonly>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <select class="select-field text-sm">
+                                                        <option value="main_engine" selected>Main Engine</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-4 rounded-lg mb-6">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <p class="text-gray-600">Total Consumption Today</p>
+                                            <p class="text-2xl font-bold text-gray-800">245.8 L</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-gray-600">Compared to yesterday</p>
+                                            <p class="text-lg font-bold text-green-600">+24%</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-between">
+                                    <button class="btn btn-secondary" onclick="prevReportStep(1)">
+                                        <i class="fas fa-arrow-left mr-2"></i> Back
+                                    </button>
+                                    <button class="btn btn-primary" onclick="nextReportStep(3)">
+                                        Next: Review & Submit <i class="fas fa-arrow-right ml-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Step 3: Review & Submit -->
+                            <div id="reportStep3" class="hidden">
+                                <div class="alert alert-success">
+                                    <i class="fas fa-check-circle mr-3"></i>
+                                    <p>Review all information before submission</p>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                    <div class="bg-gray-50 p-6 rounded-xl">
+                                        <h4 class="text-lg font-semibold mb-4">Voyage Summary</h4>
+                                        <div class="space-y-3">
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Date</span>
+                                                <span class="font-medium">October 15, 2023</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Location</span>
+                                                <span class="font-medium">Singapore Port</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Distance</span>
+                                                <span class="font-medium">125.5 NM</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Engine Hours</span>
+                                                <span class="font-medium">8.5 hours</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Weather</span>
+                                                <span class="font-medium">Calm</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 p-6 rounded-xl">
+                                        <h4 class="text-lg font-semibold mb-4">Consumption Summary</h4>
+                                        <div class="space-y-3">
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Total Consumption</span>
+                                                <span class="font-medium">245.8 L</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Heavy Fuel Oil</span>
+                                                <span class="font-medium">180.5 L</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Marine Gas Oil</span>
+                                                <span class="font-medium">45.2 L</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Cylinder Oil</span>
+                                                <span class="font-medium">15.8 L</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Hydraulic Oil</span>
+                                                <span class="font-medium">4.3 L</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-6">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Final Remarks</label>
+                                    <textarea class="input-field" rows="3" placeholder="Add any final remarks...">All readings taken at 12:00 UTC. Systems operating normally.</textarea>
+                                </div>
+                                
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle mr-3"></i>
+                                    <div>
+                                        <p class="font-medium">Important Notice</p>
+                                        <p class="text-sm mt-1">Once submitted, this report cannot be edited. Please ensure all information is accurate.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-between">
+                                    <button class="btn btn-secondary" onclick="prevReportStep(2)">
+                                        <i class="fas fa-arrow-left mr-2"></i> Back
+                                    </button>
+                                    <button class="btn btn-success" onclick="submitDailyReport()">
+                                        <i class="fas fa-paper-plane mr-2"></i> Submit Daily Report
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Inventory Page -->
+                <div id="inventoryPage" class="hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between">
+                                <div>
+                                    <h3 class="text-lg font-semibold">Oil Inventory Management</h3>
+                                    <p class="text-blue-100">Track and manage all oil types and stock levels</p>
+                                </div>
+                                <button class="btn btn-primary mt-2 md:mt-0" onclick="showAddOilModal()">
+                                    <i class="fas fa-plus mr-2"></i> Add Oil Type
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Inventory Filters -->
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <input type="text" class="input-field" placeholder="Search oil types..." onkeyup="filterInventory()">
+                                <select class="select-field" onchange="filterInventory()">
+                                    <option value="">All Categories</option>
+                                    <option value="fuel">Fuel Oil</option>
+                                    <option value="lube">Lubricating Oil</option>
+                                    <option value="hydraulic">Hydraulic Oil</option>
+                                    <option value="grease">Grease</option>
+                                </select>
+                                <select class="select-field" onchange="filterInventory()">
+                                    <option value="">All Status</option>
+                                    <option value="ok">OK</option>
+                                    <option value="low">Low</option>
+                                    <option value="critical">Critical</option>
+                                </select>
+                                <button class="btn btn-secondary" onclick="resetInventoryFilters()">
+                                    <i class="fas fa-redo mr-2"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Inventory Table -->
+                        <div class="p-6">
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="bg-gray-50">
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Oil Type</th>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Tank</th>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Current Stock</th>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Min Stock</th>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Status</th>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Last Updated</th>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="inventoryTableBody">
+                                        <!-- Will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Navigation Page -->
+                <div id="navigationPage" class="hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="text-lg font-semibold">Navigation & Position</h3>
+                            <p class="text-blue-100">Real-time ship tracking and navigation data</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <!-- Map -->
+                                <div class="lg:col-span-2">
+                                    <div class="map-container h-96">
+                                        <div class="map-placeholder">
+                                            <div class="text-center">
+                                                <i class="fas fa-map-marked-alt text-4xl text-gray-400 mb-4"></i>
+                                                <h4 class="text-lg font-medium text-gray-700">Ship Position Map</h4>
+                                                <p class="text-gray-500 mt-2">Latitude: 1.3521° N</p>
+                                                <p class="text-gray-500">Longitude: 103.8198° E</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Navigation Data -->
+                                <div class="space-y-6">
+                                    <div class="bg-gray-50 p-6 rounded-xl">
+                                        <h4 class="text-lg font-semibold mb-4">Current Position</h4>
+                                        <div class="space-y-3">
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Latitude</span>
+                                                <span class="font-medium">1.3521° N</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Longitude</span>
+                                                <span class="font-medium">103.8198° E</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Speed</span>
+                                                <span class="font-medium">12.5 knots</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Heading</span>
+                                                <span class="font-medium">145°</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Course</span>
+                                                <span class="font-medium">150°</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 p-6 rounded-xl">
+                                        <h4 class="text-lg font-semibold mb-4">Voyage Information</h4>
+                                        <div class="space-y-3">
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">From</span>
+                                                <span class="font-medium">Colombo</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">To</span>
+                                                <span class="font-medium">Singapore</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Distance Remaining</span>
+                                                <span class="font-medium">125.5 NM</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">ETA</span>
+                                                <span class="font-medium">10:00 UTC, Oct 16</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Time to Arrival</span>
+                                                <span class="font-medium">18 hours</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Crew Management Page -->
+                <div id="crewPage" class="hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="text-lg font-semibold">Crew Management</h3>
+                            <p class="text-blue-100">Manage crew assignments, watch schedules, and certifications</p>
+                        </div>
+                        <div class="p-6">
+                            <!-- Crew Stats -->
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                                <div class="bg-blue-50 p-6 rounded-xl">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-2xl font-bold">24</p>
+                                            <p class="text-gray-600">Total Crew</p>
+                                        </div>
+                                        <i class="fas fa-users text-blue-500 text-2xl"></i>
+                                    </div>
+                                </div>
+                                <div class="bg-green-50 p-6 rounded-xl">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-2xl font-bold">8</p>
+                                            <p class="text-gray-600">On Duty</p>
+                                        </div>
+                                        <i class="fas fa-user-check text-green-500 text-2xl"></i>
+                                    </div>
+                                </div>
+                                <div class="bg-yellow-50 p-6 rounded-xl">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-2xl font-bold">3</p>
+                                            <p class="text-gray-600">On Leave</p>
+                                        </div>
+                                        <i class="fas fa-umbrella-beach text-yellow-500 text-2xl"></i>
+                                    </div>
+                                </div>
+                                <div class="bg-red-50 p-6 rounded-xl">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-2xl font-bold">1</p>
+                                            <p class="text-gray-600">Medical</p>
+                                        </div>
+                                        <i class="fas fa-first-aid text-red-500 text-2xl"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Watch Schedule -->
+                            <div class="mb-8">
+                                <h4 class="text-lg font-semibold mb-4">Current Watch Schedule</h4>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full">
+                                        <thead>
+                                            <tr class="bg-gray-50">
+                                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Watch</th>
+                                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Time</th>
+                                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Officer in Charge</th>
+                                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Crew Members</th>
+                                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="table-row">
+                                                <td class="px-4 py-3 font-medium">Bridge Watch</td>
+                                                <td class="px-4 py-3">00:00 - 04:00</td>
+                                                <td class="px-4 py-3">2nd Officer Smith</td>
+                                                <td class="px-4 py-3">2 crew</td>
+                                                <td class="px-4 py-3">
+                                                    <span class="badge badge-success">Active</span>
+                                                </td>
+                                            </tr>
+                                            <tr class="table-row">
+                                                <td class="px-4 py-3 font-medium">Engine Room</td>
+                                                <td class="px-4 py-3">00:00 - 06:00</td>
+                                                <td class="px-4 py-3">3rd Engineer Brown</td>
+                                                <td class="px-4 py-3">3 crew</td>
+                                                <td class="px-4 py-3">
+                                                    <span class="badge badge-success">Active</span>
+                                                </td>
+                                            </tr>
+                                            <tr class="table-row">
+                                                <td class="px-4 py-3 font-medium">Security Watch</td>
+                                                <td class="px-4 py-3">00:00 - 12:00</td>
+                                                <td class="px-4 py-3">Bosun Wilson</td>
+                                                <td class="px-4 py-3">1 crew</td>
+                                                <td class="px-4 py-3">
+                                                    <span class="badge badge-success">Active</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- Crew List -->
+                            <div>
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="text-lg font-semibold">Crew List</h4>
+                                    <button class="btn btn-primary">
+                                        <i class="fas fa-user-plus mr-2"></i> Add Crew
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <!-- Crew cards will be populated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Alerts Page -->
+                <div id="alertsPage" class="hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between">
+                                <div>
+                                    <h3 class="text-lg font-semibold">Alerts & Notifications</h3>
+                                    <p class="text-blue-100">System alerts and important notifications</p>
+                                </div>
+                                <div class="mt-2 md:mt-0">
+                                    <button class="btn btn-secondary mr-2" onclick="markAllAlertsRead()">
+                                        <i class="fas fa-check-double mr-2"></i> Mark All Read
+                                    </button>
+                                    <button class="btn btn-danger" onclick="clearAllAlerts()">
+                                        <i class="fas fa-trash mr-2"></i> Clear All
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Alerts Tabs -->
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex space-x-4">
+                                <button class="alert-tab active" data-tab="all">All Alerts</button>
+                                <button class="alert-tab" data-tab="unread">Unread</button>
+                                <button class="alert-tab" data-tab="critical">Critical</button>
+                                <button class="alert-tab" data-tab="maintenance">Maintenance</button>
+                                <button class="alert-tab" data-tab="weather">Weather</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Alerts List -->
+                        <div class="p-6">
+                            <div id="alertsContainer">
+                                <!-- Alerts will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings Page -->
+                <div id="settingsPage" class="hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="text-lg font-semibold">Captain Settings</h3>
+                            <p class="text-blue-100">Configure your dashboard and preferences</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-8">
+                                <!-- Personal Settings -->
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-4">Personal Settings</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Display Name</label>
+                                            <input type="text" class="input-field" value="Capt. John Smith">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                                            <input type="email" class="input-field" value="captain@oceanstar.com">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Time Zone</label>
+                                            <select class="select-field">
+                                                <option value="UTC" selected>UTC (Universal Time)</option>
+                                                <option value="UTC+8">UTC+8 (Singapore)</option>
+                                                <option value="UTC+5">UTC+5 (Pakistan)</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Temperature Unit</label>
+                                            <select class="select-field">
+                                                <option value="celsius" selected>°C (Celsius)</option>
+                                                <option value="fahrenheit">°F (Fahrenheit)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Notification Settings -->
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-4">Notification Settings</h4>
+                                    <div class="space-y-4">
+                                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                            <div>
+                                                <p class="font-medium">Email Notifications</p>
+                                                <p class="text-sm text-gray-600">Receive daily report reminders</p>
+                                            </div>
+                                            <label class="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" class="sr-only peer" checked>
+                                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                            <div>
+                                                <p class="font-medium">Critical Alerts</p>
+                                                <p class="text-sm text-gray-600">Immediate notifications for critical issues</p>
+                                            </div>
+                                            <label class="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" class="sr-only peer" checked>
+                                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                            <div>
+                                                <p class="font-medium">Maintenance Reminders</p>
+                                                <p class="text-sm text-gray-600">Weekly maintenance schedule reminders</p>
+                                            </div>
+                                            <label class="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" class="sr-only peer" checked>
+                                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Dashboard Settings -->
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-4">Dashboard Preferences</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Default View</label>
+                                            <select class="select-field">
+                                                <option value="dashboard" selected>Dashboard Overview</option>
+                                                <option value="navigation">Navigation View</option>
+                                                <option value="inventory">Inventory View</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Theme</label>
+                                            <select class="select-field">
+                                                <option value="light" selected>Light Theme</option>
+                                                <option value="dark">Dark Theme</option>
+                                                <option value="auto">Auto (System)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Action Buttons -->
+                                <div class="pt-6 border-t border-gray-200">
+                                    <div class="flex space-x-4">
+                                        <button class="btn btn-primary" onclick="saveSettings()">
+                                            Save Settings
+                                        </button>
+                                        <button class="btn btn-secondary" onclick="resetSettings()">
+                                            Reset to Defaults
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Modals -->
+    
+    <!-- Add Oil Modal -->
+    <div id="addOilModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-xl font-semibold">Add New Oil Type</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Oil Name</label>
+                            <input type="text" class="input-field" placeholder="Heavy Fuel Oil">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Oil Code</label>
+                            <input type="text" class="input-field" placeholder="HFO">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                        <select class="select-field">
+                            <option value="">Select Category</option>
+                            <option value="fuel">Fuel Oil</option>
+                            <option value="lube">Lubricating Oil</option>
+                            <option value="hydraulic">Hydraulic Oil</option>
+                            <option value="grease">Grease</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Current Stock (L)</label>
+                            <input type="number" class="input-field" placeholder="0.00">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Minimum Stock (L)</label>
+                            <input type="number" class="input-field" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tank Number</label>
+                        <input type="text" class="input-field" placeholder="T1">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                        <textarea class="input-field" rows="3" placeholder="Additional notes..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                <button class="btn btn-secondary" onclick="closeModal('addOilModal')">Cancel</button>
+                <button class="btn btn-primary">Add Oil Type</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Ship Position Modal -->
+    <div id="shipPositionModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-xl font-semibold">Ship Position Details</h3>
+            </div>
+            <div class="p-6">
+                <div class="map-container h-64 mb-6">
+                    <div class="map-placeholder">
+                        <div class="text-center">
+                            <i class="fas fa-ship text-4xl text-gray-400 mb-4"></i>
+                            <p class="text-gray-700">Current Position</p>
+                            <p class="text-gray-500">1.3521° N, 103.8198° E</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-600">Latitude</p>
+                        <p class="font-medium">1.3521° N</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-600">Longitude</p>
+                        <p class="font-medium">103.8198° E</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-600">Speed</p>
+                        <p class="font-medium">12.5 knots</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-600">Heading</p>
+                        <p class="font-medium">145°</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end">
+                <button class="btn btn-secondary" onclick="closeModal('shipPositionModal')">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Weather Report Modal -->
+    <div id="weatherReportModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-xl font-semibold">Weather Report</h3>
+            </div>
+            <div class="p-6">
+                <div class="weather-card p-6 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-xl font-semibold">Current Weather</h4>
+                            <p class="text-blue-100">Singapore Waters</p>
+                        </div>
+                        <i class="fas fa-sun text-4xl text-yellow-300"></i>
+                    </div>
+                    <div class="mt-6 grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-blue-200">Temperature</p>
+                            <p class="text-3xl font-bold">28°C</p>
+                        </div>
+                        <div>
+                            <p class="text-blue-200">Wind Speed</p>
+                            <p class="text-3xl font-bold">12 knots</p>
+                        </div>
+                        <div>
+                            <p class="text-blue-200">Wave Height</p>
+                            <p class="text-3xl font-bold">1.2 m</p>
+                        </div>
+                        <div>
+                            <p class="text-blue-200">Visibility</p>
+                            <p class="text-3xl font-bold">10 nm</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <h4 class="text-lg font-semibold mb-4">24-Hour Forecast</h4>
+                <div class="overflow-x-auto">
+                    <div class="flex space-x-4 min-w-max">
+                        <div class="bg-gray-50 p-4 rounded-lg text-center min-w-[120px]">
+                            <p class="font-medium">Now</p>
+                            <i class="fas fa-sun text-yellow-500 text-2xl my-3"></i>
+                            <p class="text-lg font-bold">28°C</p>
+                            <p class="text-sm text-gray-600">12 knots</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg text-center min-w-[120px]">
+                            <p class="font-medium">+3h</p>
+                            <i class="fas fa-cloud-sun text-gray-400 text-2xl my-3"></i>
+                            <p class="text-lg font-bold">27°C</p>
+                            <p class="text-sm text-gray-600">14 knots</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg text-center min-w-[120px]">
+                            <p class="font-medium">+6h</p>
+                            <i class="fas fa-cloud text-gray-500 text-2xl my-3"></i>
+                            <p class="text-lg font-bold">26°C</p>
+                            <p class="text-sm text-gray-600">15 knots</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg text-center min-w-[120px]">
+                            <p class="font-medium">+9h</p>
+                            <i class="fas fa-cloud-rain text-blue-400 text-2xl my-3"></i>
+                            <p class="text-lg font-bold">25°C</p>
+                            <p class="text-sm text-gray-600">18 knots</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg text-center min-w-[120px]">
+                            <p class="font-medium">+12h</p>
+                            <i class="fas fa-cloud-showers-heavy text-blue-500 text-2xl my-3"></i>
+                            <p class="text-lg font-bold">24°C</p>
+                            <p class="text-sm text-gray-600">20 knots</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end">
+                <button class="btn btn-secondary" onclick="closeModal('weatherReportModal')">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="modal">
+        <div class="modal-content max-w-sm">
+            <div class="p-8 flex flex-col items-center">
+                <div class="loading mb-4"></div>
+                <p id="loadingText" class="text-gray-700 font-medium">Processing...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application -->
+    <script>
+        // Application State
+        const CaptainApp = {
+            currentUser: {
+                name: "Capt. John Smith",
+                rank: "Master",
+                ship: "MV Ocean Star",
+                imo: "IMO 9876543",
+                license: "STCW Master 3000GT",
+                experience: "15 years"
+            },
+            ship: {
+                name: "MV Ocean Star",
+                type: "Container Ship",
+                flag: "Panama",
+                year: "2018",
+                dwt: "45,000",
+                length: "200m",
+                beam: "32m"
+            },
+            currentPage: 'dashboard',
+            inventory: [
+                {
+                    id: 1,
+                    name: "Heavy Fuel Oil",
+                    code: "HFO",
+                    category: "fuel",
+                    tank: "T1",
+                    current: 1250.5,
+                    min: 200,
+                    status: "ok",
+                    lastUpdated: "2023-10-15"
+                },
+                {
+                    id: 2,
+                    name: "Marine Gas Oil",
+                    code: "MGO",
+                    category: "fuel",
+                    tank: "T2",
+                    current: 850.2,
+                    min: 150,
+                    status: "ok",
+                    lastUpdated: "2023-10-15"
+                },
+                {
+                    id: 3,
+                    name: "Cylinder Oil SAE 40",
+                    code: "SAE40",
+                    category: "lube",
+                    tank: "T3",
+                    current: 45.8,
+                    min: 50,
+                    status: "critical",
+                    lastUpdated: "2023-10-15"
+                },
+                {
+                    id: 4,
+                    name: "System Oil TBN 40",
+                    code: "TBN40",
+                    category: "lube",
+                    tank: "T4",
+                    current: 120.0,
+                    min: 30,
+                    status: "ok",
+                    lastUpdated: "2023-10-15"
+                },
+                {
+                    id: 5,
+                    name: "Hydraulic Oil",
+                    code: "HYD",
+                    category: "hydraulic",
+                    tank: "T5",
+                    current: 85.5,
+                    min: 100,
+                    status: "low",
+                    lastUpdated: "2023-10-14"
+                },
+                {
+                    id: 6,
+                    name: "Grease",
+                    code: "GRS",
+                    category: "grease",
+                    tank: "DRUM1",
+                    current: 12.5,
+                    min: 5,
+                    status: "ok",
+                    lastUpdated: "2023-10-13"
+                }
+            ],
+            alerts: [
+                {
+                    id: 1,
+                    type: "inventory",
+                    level: "critical",
+                    title: "Low Cylinder Oil Inventory",
+                    message: "Cylinder Oil SAE 40 is below minimum level (45.8L remaining)",
+                    timestamp: "2023-10-15 10:30",
+                    read: false,
+                    action: "inventory"
+                },
+                {
+                    id: 2,
+                    type: "maintenance",
+                    level: "warning",
+                    title: "Maintenance Due",
+                    message: "Oil filter change due in 7 days for Main Engine",
+                    timestamp: "2023-10-15 09:15",
+                    read: false,
+                    action: "maintenance"
+                },
+                {
+                    id: 3,
+                    type: "weather",
+                    level: "info",
+                    title: "Weather Advisory",
+                    message: "Rain expected in 6 hours, wind speed increasing to 20 knots",
+                    timestamp: "2023-10-15 08:45",
+                    read: true,
+                    action: "weather"
+                },
+                {
+                    id: 4,
+                    type: "report",
+                    level: "warning",
+                    title: "Daily Report Pending",
+                    message: "Today's oil consumption report not submitted yet",
+                    timestamp: "2023-10-15 08:00",
+                    read: true,
+                    action: "daily-report"
+                },
+                {
+                    id: 5,
+                    type: "crew",
+                    level: "info",
+                    title: "Crew Certification Expiry",
+                    message: "2 crew members have certificates expiring this month",
+                    timestamp: "2023-10-14 16:30",
+                    read: true,
+                    action: "crew"
+                }
+            ],
+            dailyReports: [
+                { date: "2023-10-15", status: "draft", consumption: 245.8 },
+                { date: "2023-10-14", status: "submitted", consumption: 198.2 },
+                { date: "2023-10-13", status: "verified", consumption: 215.5 },
+                { date: "2023-10-12", status: "verified", consumption: 230.8 },
+                { date: "2023-10-11", status: "verified", consumption: 175.3 }
+            ],
+            crew: [
+                { id: 1, name: "John Smith", rank: "Master", department: "Deck", status: "on-duty", watch: "Bridge" },
+                { id: 2, name: "Robert Johnson", rank: "Chief Engineer", department: "Engine", status: "on-duty", watch: "Engine Room" },
+                { id: 3, name: "Michael Brown", rank: "2nd Officer", department: "Deck", status: "on-duty", watch: "Bridge" },
+                { id: 4, name: "David Wilson", rank: "3rd Engineer", department: "Engine", status: "off-duty", watch: null },
+                { id: 5, name: "James Taylor", rank: "Bosun", department: "Deck", status: "on-duty", watch: "Security" },
+                { id: 6, name: "William Clark", rank: "Able Seaman", department: "Deck", status: "on-duty", watch: "Bridge" }
+            ]
+        };
+
+        // DOM Elements
+        const elements = {
+            pageTitle: document.getElementById('pageTitle'),
+            pageSubtitle: document.getElementById('pageSubtitle'),
+            currentTime: document.getElementById('currentTime'),
+            currentDate: document.getElementById('currentDate'),
+            mobileSidebar: document.getElementById('mobileSidebar'),
+            mobileMenuBtn: document.getElementById('mobileMenuBtn')
+        };
+
+        // Initialize the application
+        function init() {
+            // Set up current date and time
+            updateDateTime();
+            setInterval(updateDateTime, 60000); // Update every minute
+            
+            // Set up navigation
+            setupNavigation();
+            
+            // Initialize charts
+            initCharts();
+            
+            // Load initial data
+            loadInventoryData();
+            loadAlertsData();
+            loadCrewData();
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Show dashboard by default
+            navigateTo('dashboard');
+        }
+
+        // Update date and time display
+        function updateDateTime() {
+            const now = new Date();
+            elements.currentTime.textContent = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false 
+            }) + ' UTC';
+            
+            elements.currentDate.textContent = now.toLocaleDateString('en-US', { 
+                weekday: 'long',
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+
+        // Set up navigation
+        function setupNavigation() {
+            // Navigation links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    document.querySelectorAll('.nav-link').forEach(l => {
+                        l.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                });
+            });
+            
+            // Alert tabs
+            document.querySelectorAll('.alert-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.alert-tab').forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Filter alerts
+                    filterAlerts(tabName);
+                });
+            });
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Mobile menu button
+            elements.mobileMenuBtn.addEventListener('click', toggleMobileSidebar);
+            
+            // Close mobile sidebar when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('#mobileSidebar') && !event.target.closest('#mobileMenuBtn') && elements.mobileSidebar.classList.contains('active')) {
+                    toggleMobileSidebar();
+                }
+            });
+            
+            // Escape key closes modals
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeAllModals();
+                }
+            });
+        }
+
+        // Toggle mobile sidebar
+        function toggleMobileSidebar() {
+            elements.mobileSidebar.classList.toggle('hidden');
+            elements.mobileSidebar.classList.toggle('active');
+            
+            if (elements.mobileSidebar.classList.contains('active')) {
+                elements.mobileSidebar.classList.add('animate__slideInLeft');
+                elements.mobileSidebar.classList.remove('animate__slideOutLeft');
+            } else {
+                elements.mobileSidebar.classList.add('animate__slideOutLeft');
+                elements.mobileSidebar.classList.remove('animate__slideInLeft');
+            }
+        }
+
+        // Navigate to page
+        function navigateTo(page) {
+            // Hide all pages
+            document.querySelectorAll('[id$="Page"]').forEach(pageEl => {
+                pageEl.classList.add('hidden');
+            });
+            
+            // Show selected page
+            const pageElement = document.getElementById(`${page}Page`);
+            if (pageElement) {
+                pageElement.classList.remove('hidden');
+                CaptainApp.currentPage = page;
+                
+                // Update page title
+                const pageTitles = {
+                    'dashboard': "Captain's Dashboard",
+                    'daily-report': "Daily Report",
+                    'inventory': "Oil Inventory",
+                    'navigation': "Navigation",
+                    'crew': "Crew Management",
+                    'alerts': "Alerts & Notifications",
+                    'settings': "Settings"
+                };
+                
+                const pageSubtitles = {
+                    'dashboard': "Welcome back, Captain Smith",
+                    'daily-report': "Submit today's oil usage and voyage data",
+                    'inventory': "Track and manage all oil types and stock levels",
+                    'navigation': "Real-time ship tracking and navigation data",
+                    'crew': "Manage crew assignments, watch schedules, and certifications",
+                    'alerts': "System alerts and important notifications",
+                    'settings': "Configure your dashboard and preferences"
+                };
+                
+                elements.pageTitle.textContent = pageTitles[page] || page;
+                elements.pageSubtitle.textContent = pageSubtitles[page] || '';
+                
+                // Update active nav link
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                const navLink = document.querySelector(`.nav-link[onclick*="${page}"]`);
+                if (navLink) {
+                    navLink.classList.add('active');
+                }
+                
+                // Close mobile sidebar if open
+                if (window.innerWidth < 768) {
+                    toggleMobileSidebar();
+                }
+            }
+        }
+
+        // Initialize charts
+        function initCharts() {
+            // Consumption Chart
+            const ctx = document.getElementById('consumptionChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Oct 9', 'Oct 10', 'Oct 11', 'Oct 12', 'Oct 13', 'Oct 14', 'Today'],
+                    datasets: [{
+                        label: 'Oil Consumption (L)',
+                        data: [210, 195, 175, 230, 215, 198, 245],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#1e40af',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(30, 58, 138, 0.9)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#1e40af',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    return `Consumption: ${context.parsed.y}L`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#6b7280'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                color: '#6b7280',
+                                callback: function(value) {
+                                    return value + 'L';
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Liters',
+                                color: '#6b7280'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load inventory data
+        function loadInventoryData() {
+            const tbody = document.getElementById('inventoryTableBody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            CaptainApp.inventory.forEach(item => {
+                const statusClass = getStatusClass(item.status);
+                const statusText = getStatusText(item.status);
+                const percentage = Math.min(100, (item.current / item.min) * 100);
+                const statusColor = getStatusColor(item.status);
+                
+                const row = document.createElement('tr');
+                row.className = 'table-row';
+                row.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div class="font-medium text-gray-900">${item.name}</div>
+                        <div class="text-sm text-gray-500">${item.code}</div>
+                    </td>
+                    <td class="px-6 py-4">${item.tank}</td>
+                    <td class="px-6 py-4">
+                        <div class="font-medium">${item.current.toFixed(1)} L</div>
+                        <div class="progress-bar mt-2">
+                            <div class="progress-fill bg-${statusColor}-500" style="width: ${percentage}%"></div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">${item.min.toFixed(1)} L</td>
+                    <td class="px-6 py-4">
+                        <span class="badge ${statusClass}">${statusText}</span>
+                    </td>
+                    <td class="px-6 py-4">${formatDate(item.lastUpdated)}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex space-x-2">
+                            <button class="text-blue-600 hover:text-blue-800" onclick="editInventoryItem(${item.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="text-red-600 hover:text-red-800" onclick="deleteInventoryItem(${item.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Get status class
+        function getStatusClass(status) {
+            switch(status) {
+                case 'ok': return 'badge-success';
+                case 'low': return 'badge-warning';
+                case 'critical': return 'badge-danger';
+                default: return 'badge-primary';
+            }
+        }
+
+        // Get status text
+        function getStatusText(status) {
+            switch(status) {
+                case 'ok': return 'OK';
+                case 'low': return 'Low';
+                case 'critical': return 'Critical';
+                default: return status;
+            }
+        }
+
+        // Get status color
+        function getStatusColor(status) {
+            switch(status) {
+                case 'ok': return 'green';
+                case 'low': return 'yellow';
+                case 'critical': return 'red';
+                default: return 'blue';
+            }
+        }
+
+        // Filter inventory
+        function filterInventory() {
+            const search = document.querySelector('#inventoryPage input[type="text"]').value.toLowerCase();
+            const category = document.querySelector('#inventoryPage select:nth-of-type(1)').value;
+            const status = document.querySelector('#inventoryPage select:nth-of-type(2)').value;
+            
+            const tbody = document.getElementById('inventoryTableBody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            const filteredItems = CaptainApp.inventory.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(search) || 
+                                     item.code.toLowerCase().includes(search);
+                const matchesCategory = !category || item.category === category;
+                const matchesStatus = !status || item.status === status;
+                
+                return matchesSearch && matchesCategory && matchesStatus;
+            });
+            
+            if (filteredItems.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                        <i class="fas fa-search text-3xl mb-3"></i>
+                        <p class="text-lg">No inventory items found</p>
+                        <p class="text-sm mt-1">Try adjusting your filters</p>
+                    </td>
+                `;
+                tbody.appendChild(row);
+                return;
+            }
+            
+            filteredItems.forEach(item => {
+                const statusClass = getStatusClass(item.status);
+                const statusText = getStatusText(item.status);
+                const percentage = Math.min(100, (item.current / item.min) * 100);
+                const statusColor = getStatusColor(item.status);
+                
+                const row = document.createElement('tr');
+                row.className = 'table-row';
+                row.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div class="font-medium text-gray-900">${item.name}</div>
+                        <div class="text-sm text-gray-500">${item.code}</div>
+                    </td>
+                    <td class="px-6 py-4">${item.tank}</td>
+                    <td class="px-6 py-4">
+                        <div class="font-medium">${item.current.toFixed(1)} L</div>
+                        <div class="progress-bar mt-2">
+                            <div class="progress-fill bg-${statusColor}-500" style="width: ${percentage}%"></div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">${item.min.toFixed(1)} L</td>
+                    <td class="px-6 py-4">
+                        <span class="badge ${statusClass}">${statusText}</span>
+                    </td>
+                    <td class="px-6 py-4">${formatDate(item.lastUpdated)}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex space-x-2">
+                            <button class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="text-red-600 hover:text-red-800">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Reset inventory filters
+        function resetInventoryFilters() {
+            document.querySelectorAll('#inventoryPage input, #inventoryPage select').forEach(el => {
+                el.value = '';
+            });
+            filterInventory();
+        }
+
+        // Load alerts data
+        function loadAlertsData() {
+            const container = document.getElementById('alertsContainer');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            if (CaptainApp.alerts.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fas fa-bell-slash text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500">No alerts at the moment</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            CaptainApp.alerts.forEach(alert => {
+                const icon = getAlertIcon(alert.type);
+                const color = getAlertColor(alert.level);
+                const timeAgo = getTimeAgo(alert.timestamp);
+                
+                const alertElement = document.createElement('div');
+                alertElement.className = `p-4 mb-4 rounded-lg border-l-4 border-${color}-500 ${alert.read ? 'bg-gray-50' : 'bg-white shadow-sm'}`;
+                alertElement.innerHTML = `
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <div class="w-10 h-10 rounded-full bg-${color}-100 flex items-center justify-center">
+                                <i class="fas fa-${icon} text-${color}-500"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <div class="flex items-center justify-between">
+                                <h4 class="font-medium text-gray-900">${alert.title}</h4>
+                                <span class="text-xs text-gray-500">${timeAgo}</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-1">${alert.message}</p>
+                            <div class="mt-3 flex items-center">
+                                ${alert.action ? `
+                                <button class="text-sm text-${color}-600 hover:text-${color}-800 font-medium" onclick="navigateTo('${alert.action}')">
+                                    <i class="fas fa-arrow-right mr-1"></i> Take Action
+                                </button>
+                                ` : ''}
+                                <button class="ml-4 text-sm text-gray-600 hover:text-gray-800" onclick="markAlertRead(${alert.id})">
+                                    ${alert.read ? '<i class="fas fa-check mr-1"></i> Read' : '<i class="fas fa-eye mr-1"></i> Mark as Read'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(alertElement);
+            });
+        }
+
+        // Get alert icon
+        function getAlertIcon(type) {
+            const icons = {
+                'inventory': 'oil-can',
+                'maintenance': 'tools',
+                'weather': 'cloud-sun',
+                'report': 'file-alt',
+                'crew': 'users',
+                'navigation': 'map-marker-alt',
+                'security': 'shield-alt',
+                'emergency': 'exclamation-triangle'
+            };
+            return icons[type] || 'bell';
+        }
+
+        // Get alert color
+        function getAlertColor(level) {
+            const colors = {
+                'critical': 'red',
+                'warning': 'yellow',
+                'info': 'blue'
+            };
+            return colors[level] || 'gray';
+        }
+
+        // Filter alerts
+        function filterAlerts(filter) {
+            const container = document.getElementById('alertsContainer');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            let filteredAlerts = CaptainApp.alerts;
+            
+            if (filter === 'unread') {
+                filteredAlerts = filteredAlerts.filter(alert => !alert.read);
+            } else if (filter === 'critical') {
+                filteredAlerts = filteredAlerts.filter(alert => alert.level === 'critical');
+            } else if (filter === 'maintenance') {
+                filteredAlerts = filteredAlerts.filter(alert => alert.type === 'maintenance');
+            } else if (filter === 'weather') {
+                filteredAlerts = filteredAlerts.filter(alert => alert.type === 'weather');
+            }
+            
+            if (filteredAlerts.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fas fa-filter text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500">No alerts match your filter</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            filteredAlerts.forEach(alert => {
+                const icon = getAlertIcon(alert.type);
+                const color = getAlertColor(alert.level);
+                const timeAgo = getTimeAgo(alert.timestamp);
+                
+                const alertElement = document.createElement('div');
+                alertElement.className = `p-4 mb-4 rounded-lg border-l-4 border-${color}-500 ${alert.read ? 'bg-gray-50' : 'bg-white shadow-sm'}`;
+                alertElement.innerHTML = `
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <div class="w-10 h-10 rounded-full bg-${color}-100 flex items-center justify-center">
+                                <i class="fas fa-${icon} text-${color}-500"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <div class="flex items-center justify-between">
+                                <h4 class="font-medium text-gray-900">${alert.title}</h4>
+                                <span class="text-xs text-gray-500">${timeAgo}</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-1">${alert.message}</p>
+                            <div class="mt-3 flex items-center">
+                                ${alert.action ? `
+                                <button class="text-sm text-${color}-600 hover:text-${color}-800 font-medium" onclick="navigateTo('${alert.action}')">
+                                    <i class="fas fa-arrow-right mr-1"></i> Take Action
+                                </button>
+                                ` : ''}
+                                <button class="ml-4 text-sm text-gray-600 hover:text-gray-800" onclick="markAlertRead(${alert.id})">
+                                    ${alert.read ? '<i class="fas fa-check mr-1"></i> Read' : '<i class="fas fa-eye mr-1"></i> Mark as Read'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(alertElement);
+            });
+        }
+
+        // Mark alert as read
+        function markAlertRead(alertId) {
+            const alert = CaptainApp.alerts.find(a => a.id === alertId);
+            if (alert) {
+                alert.read = true;
+                loadAlertsData();
+            }
+        }
+
+        // Mark all alerts as read
+        function markAllAlertsRead() {
+            CaptainApp.alerts.forEach(alert => {
+                alert.read = true;
+            });
+            loadAlertsData();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'All alerts marked as read',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }
+
+        // Clear all alerts
+        function clearAllAlerts() {
+            Swal.fire({
+                title: 'Clear all alerts?',
+                text: 'This action cannot be undone.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, clear all'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    CaptainApp.alerts = [];
+                    loadAlertsData();
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'All alerts cleared',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            });
+        }
+
+        // Load crew data
+        function loadCrewData() {
+            const container = document.querySelector('#crewPage .grid');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            CaptainApp.crew.forEach(member => {
+                const statusColor = getCrewStatusColor(member.status);
+                const statusText = getCrewStatusText(member.status);
+                
+                const card = document.createElement('div');
+                card.className = 'bg-white border border-gray-200 rounded-xl p-4';
+                card.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h4 class="font-semibold text-gray-800">${member.name}</h4>
+                            <p class="text-sm text-gray-600">${member.rank}</p>
+                            <p class="text-xs text-gray-500 mt-1">${member.department} Department</p>
+                        </div>
+                        <span class="badge ${statusColor}">${statusText}</span>
+                    </div>
+                    ${member.watch ? `
+                    <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                        <p class="text-sm text-gray-600">Current Watch</p>
+                        <p class="font-medium">${member.watch}</p>
+                    </div>
+                    ` : ''}
+                    <div class="mt-4 flex space-x-2">
+                        <button class="flex-1 btn btn-secondary btn-sm">
+                            <i class="fas fa-envelope mr-1"></i> Message
+                        </button>
+                        <button class="flex-1 btn btn-outline btn-sm">
+                            <i class="fas fa-user mr-1"></i> Profile
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Get crew status color
+        function getCrewStatusColor(status) {
+            switch(status) {
+                case 'on-duty': return 'badge-success';
+                case 'off-duty': return 'badge-primary';
+                case 'leave': return 'badge-warning';
+                case 'medical': return 'badge-danger';
+                default: return 'badge-primary';
+            }
+        }
+
+        // Get crew status text
+        function getCrewStatusText(status) {
+            switch(status) {
+                case 'on-duty': return 'On Duty';
+                case 'off-duty': return 'Off Duty';
+                case 'leave': return 'On Leave';
+                case 'medical': return 'Medical';
+                default: return status;
+            }
+        }
+
+        // Calculate consumption
+        function calculateConsumption(input) {
+            const row = input.closest('tr');
+            const opening = parseFloat(row.querySelector('td:nth-child(3) input').value) || 0;
+            const closing = parseFloat(row.querySelector('td:nth-child(4) input').value) || 0;
+            const consumption = opening - closing;
+            
+            row.querySelector('td:nth-child(5) input').value = consumption >= 0 ? consumption.toFixed(1) : '0.0';
+        }
+
+        // Next report step
+        function nextReportStep(step) {
+            // Hide all steps
+            document.querySelectorAll('[id^="reportStep"]').forEach(stepEl => {
+                stepEl.classList.add('hidden');
+            });
+            
+            // Show target step
+            document.getElementById(`reportStep${step}`).classList.remove('hidden');
+            
+            // Update step indicators
+            updateStepIndicators(step);
+        }
+
+        // Previous report step
+        function prevReportStep(step) {
+            // Hide all steps
+            document.querySelectorAll('[id^="reportStep"]').forEach(stepEl => {
+                stepEl.classList.add('hidden');
+            });
+            
+            // Show target step
+            document.getElementById(`reportStep${step}`).classList.remove('hidden');
+            
+            // Update step indicators
+            updateStepIndicators(step);
+        }
+
+        // Update step indicators
+        function updateStepIndicators(currentStep) {
+            // Update step numbers
+            document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
+                const stepNumber = index + 1;
+                indicator.classList.remove('active', 'completed');
+                
+                if (stepNumber < currentStep) {
+                    indicator.classList.add('completed');
+                } else if (stepNumber === currentStep) {
+                    indicator.classList.add('active');
+                }
+            });
+            
+            // Update step lines
+            document.querySelectorAll('.step-line').forEach((line, index) => {
+                const stepNumber = index + 1;
+                line.classList.remove('completed');
+                
+                if (stepNumber < currentStep) {
+                    line.classList.add('completed');
+                }
+            });
+        }
+
+        // Submit daily report
+        function submitDailyReport() {
+            showLoading('Submitting daily report...');
+            
+            setTimeout(() => {
+                hideLoading();
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Report Submitted!',
+                    text: 'Your daily oil consumption report has been submitted successfully.',
+                    showConfirmButton: false,
+                    timer: 2000
+                }).then(() => {
+                    navigateTo('dashboard');
+                });
+            }, 1500);
+        }
+
+        // Get current location
+        function getCurrentLocation() {
+            showLoading('Getting current location...');
+            
+            setTimeout(() => {
+                hideLoading();
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Location Updated',
+                    text: 'Current ship position has been retrieved.',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }, 1000);
+        }
+
+        // Show ship position
+        function showShipPosition() {
+            document.getElementById('shipPositionModal').classList.add('active');
+        }
+
+        // Show weather report
+        function showWeatherReport() {
+            document.getElementById('weatherReportModal').classList.add('active');
+        }
+
+        // Emergency alert
+        function emergencyAlert() {
+            Swal.fire({
+                title: 'Emergency Alert',
+                text: 'Are you sure you want to send an emergency alert to the bridge?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Send Emergency Alert',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showLoading('Sending emergency alert...');
+                    
+                    setTimeout(() => {
+                        hideLoading();
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Alert Sent!',
+                            text: 'Emergency alert has been sent to the bridge.',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    }, 1500);
+                }
+            });
+        }
+
+        // Show add oil modal
+        function showAddOilModal() {
+            document.getElementById('addOilModal').classList.add('active');
+        }
+
+        // Save settings
+        function saveSettings() {
+            showLoading('Saving settings...');
+            
+            setTimeout(() => {
+                hideLoading();
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Settings Saved!',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }, 1000);
+        }
+
+        // Reset settings
+        function resetSettings() {
+            Swal.fire({
+                title: 'Reset Settings?',
+                text: 'All settings will be restored to default values.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#6b7280',
+                cancelButtonColor: '#3b82f6',
+                confirmButtonText: 'Reset',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showLoading('Resetting settings...');
+                    
+                    setTimeout(() => {
+                        hideLoading();
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Settings Reset!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }, 1000);
+                }
+            });
+        }
+
+        // Toggle notifications
+        function toggleNotifications() {
+            // This would toggle a notifications panel in a real app
+            navigateTo('alerts');
+        }
+
+        // Logout
+        function logout() {
+            Swal.fire({
+                title: 'Logout?',
+                text: 'Are you sure you want to logout?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, logout',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showLoading('Logging out...');
+                    
+                    setTimeout(() => {
+                        hideLoading();
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Logged out successfully',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            // In a real app, this would redirect to login page
+                            console.log('User logged out');
+                        });
+                    }, 1000);
+                }
+            });
+        }
+
+        // Show loading overlay
+        function showLoading(text = 'Processing...') {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loadingOverlay').classList.add('active');
+        }
+
+        // Hide loading overlay
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+
+        // Close modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Close all modals
+        function closeAllModals() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.classList.remove('active');
+            });
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+
+        // Get time ago
+        function getTimeAgo(dateTimeString) {
+            const date = new Date(dateTimeString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 60) {
+                return `${diffMins}m ago`;
+            } else if (diffHours < 24) {
+                return `${diffHours}h ago`;
+            } else if (diffDays < 7) {
+                return `${diffDays}d ago`;
+            } else {
+                return formatDate(dateTimeString);
+            }
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
