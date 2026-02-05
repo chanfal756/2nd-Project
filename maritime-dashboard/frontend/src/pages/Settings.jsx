@@ -29,7 +29,8 @@ const Settings = () => {
   const [profileData, setProfileData] = useState({
     name: user.name,
     email: user.email,
-    vessel: user.vessel || ''
+    vessel: user.vessel || '',
+    idNumber: user.idNumber || ''
   });
 
   const handleProfileUpdate = async (e) => {
@@ -120,6 +121,16 @@ const Settings = () => {
                   onChange={(e) => setProfileData({...profileData, vessel: e.target.value})} 
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   placeholder="MV Ocean Star"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600 dark:text-gray-400 mb-2">ID Number</label>
+                <input 
+                  type="text" 
+                  value={profileData.idNumber}
+                  onChange={(e) => setProfileData({...profileData, idNumber: e.target.value})} 
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="MAR-4321"
                 />
               </div>
               <div>
@@ -215,31 +226,91 @@ const Settings = () => {
             <div className="text-center mb-4">
               <div 
                 onClick={() => {
+                  const hasImage = !!user.profileImage;
+                  
                   Swal.fire({
-                    title: 'Change Profile Photo',
-                    text: 'Upload a new profile picture',
-                    input: 'file',
-                    inputAttributes: {
-                      'accept': 'image/*',
-                      'aria-label': 'Upload your profile picture'
-                    },
+                    title: 'Profile Photo',
+                    text: hasImage ? 'What would you like to do?' : 'Upload a profile picture',
+                    icon: 'info',
                     showCancelButton: true,
-                    confirmButtonText: 'Upload',
-                    confirmButtonColor: '#2563eb'
-                  }).then((res) => {
-                    if (res.isConfirmed && res.value) {
-                      Swal.fire('Success', 'Profile photo updated successfully', 'success');
+                    cancelButtonText: 'Cancel',
+                    showDenyButton: hasImage,
+                    denyButtonText: 'Choose from Gallery',
+                    denyButtonColor: '#10b981',
+                    confirmButtonText: hasImage ? 'View Photo' : 'Choose from Gallery',
+                    confirmButtonColor: hasImage ? '#2563eb' : '#10b981',
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                      if (hasImage) {
+                        // View Photo
+                        Swal.fire({
+                          imageUrl: user.profileImage,
+                          imageAlt: 'Profile Photo',
+                          showConfirmButton: false,
+                          background: 'rgba(0,0,0,0.95)',
+                          customClass: {
+                            image: 'rounded-lg border-4 border-white shadow-2xl max-h-[80vh]'
+                          }
+                        });
+                      } else {
+                        // Trigger upload if no image but confirm clicked
+                        triggerUpload();
+                      }
+                    } else if (result.isDenied) {
+                      // Choose from Gallery (Deny button used for second action)
+                      triggerUpload();
                     }
                   });
+
+                  const triggerUpload = () => {
+                    Swal.fire({
+                      title: 'Select Image',
+                      input: 'file',
+                      inputAttributes: {
+                        'accept': 'image/*',
+                        'aria-label': 'Upload your profile picture'
+                      },
+                      showCancelButton: true,
+                      confirmButtonText: 'Upload',
+                      confirmButtonColor: '#2563eb'
+                    }).then((res) => {
+                      if (res.isConfirmed && res.value) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                          const newUrl = e.target.result;
+                          const updatedUser = { ...user, profileImage: newUrl };
+                          setUser(updatedUser);
+                          localStorage.setItem('user', JSON.stringify(updatedUser));
+                          Swal.fire('Success', 'Profile photo updated!', 'success');
+                        };
+                        reader.readAsDataURL(res.value);
+                      }
+                    });
+                  };
                 }}
-                className="w-20 h-20 bg-white/20 hover:bg-white/30 cursor-pointer rounded-full mx-auto flex items-center justify-center mb-4 transition-colors relative group"
+                className="w-24 h-24 bg-white/20 hover:bg-white/30 cursor-pointer rounded-full mx-auto flex items-center justify-center mb-4 transition-all duration-300 relative group overflow-hidden border-4 border-black shadow-xl"
               >
-                <i className="fas fa-camera text-3xl group-hover:block hidden absolute"></i>
-                <i className="fas fa-user text-3xl group-hover:hidden"></i>
+                {user.profileImage ? (
+                  <img src={user.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <i className="fas fa-user text-4xl group-hover:hidden text-gray-800"></i>
+                )}
+                <div className="absolute inset-0 bg-black/40 items-center justify-center group-hover:flex hidden transition-opacity duration-300">
+                  <i className="fas fa-camera text-2xl text-white"></i>
+                </div>
               </div>
-              <h4 className="font-bold text-xl mb-1">{user.name}</h4>
-              <p className="text-blue-200 text-sm capitalize mb-1">{user.role || 'Captain'}</p>
-              <p className="text-blue-300 text-xs font-mono">ID: {user.email || 'USR-2024-889'}</p>
+              
+              <div className="mb-3">
+                <div className="inline-block px-4 py-1.5 bg-white rounded-lg shadow-md border-2 border-black">
+                  <h4 className="font-bold text-xl text-black tracking-tight">{user.name}</h4>
+                </div>
+              </div>
+
+              <div className="inline-block px-4 py-1.5 bg-white rounded-full border-2 border-black shadow-sm">
+                <p className="text-black text-xs font-mono font-bold">
+                  ID: <span className="text-black">{user.idNumber || 'USR-2024-889'}</span>
+                </p>
+              </div>
             </div>
             <button 
               onClick={handleLogout}

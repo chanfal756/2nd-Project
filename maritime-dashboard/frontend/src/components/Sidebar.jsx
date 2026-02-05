@@ -28,7 +28,10 @@ const Sidebar = () => {
       <div className="h-full flex flex-col">
         {/* Sidebar Header */}
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center space-x-3">
+          <div 
+            onClick={() => navigate('/settings')}
+            className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 p-2 -m-2 rounded-lg transition-all"
+          >
             <div className="ship-icon">
               <i className="fas fa-ship"></i>
             </div>
@@ -48,6 +51,10 @@ const Sidebar = () => {
           <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
             <i className="fas fa-tachometer-alt w-6 mr-3"></i>
             <span>Dashboard</span>
+          </NavLink>
+          <NavLink to="/captain" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+            <i className="fas fa-anchor w-6 mr-3"></i>
+            <span>Command Center</span>
           </NavLink>
           <NavLink to="/reports" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
             <i className="fas fa-file-alt w-6 mr-3"></i>

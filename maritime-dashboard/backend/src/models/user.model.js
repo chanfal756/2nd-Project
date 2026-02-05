@@ -39,6 +39,16 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    profileImage: {
+      type: String,
+      default: '',
+    },
+    idNumber: {
+      type: String,
+      default: function() {
+        return `MAR-${Math.floor(1000 + Math.random() * 9000)}`;
+      }
+    },
     isActive: {
       type: Boolean,
       default: true,

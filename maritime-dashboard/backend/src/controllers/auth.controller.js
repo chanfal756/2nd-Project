@@ -61,6 +61,8 @@ const register = async (req, res) => {
           email: user.email,
           role: user.role,
           vessel: user.vessel,
+          profileImage: user.profileImage,
+          idNumber: user.idNumber,
           createdAt: user.createdAt,
         },
         token,
@@ -144,6 +146,8 @@ const login = async (req, res) => {
           email: user.email,
           role: user.role,
           vessel: user.vessel,
+          profileImage: user.profileImage,
+          idNumber: user.idNumber,
           createdAt: user.createdAt,
         },
         token,
@@ -177,6 +181,8 @@ const getMe = async (req, res) => {
           email: user.email,
           role: user.role,
           vessel: user.vessel,
+          profileImage: user.profileImage,
+          idNumber: user.idNumber,
           isActive: user.isActive,
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
@@ -199,7 +205,7 @@ const getMe = async (req, res) => {
  */
 const updateProfile = async (req, res) => {
   try {
-    const { name, email, vessel } = req.body;
+    const { name, email, vessel, profileImage, idNumber } = req.body;
 
     const user = await User.findById(req.user.id);
 
@@ -214,6 +220,8 @@ const updateProfile = async (req, res) => {
     if (name) user.name = name;
     if (email) user.email = email;
     if (vessel !== undefined) user.vessel = vessel;
+    if (profileImage !== undefined) user.profileImage = profileImage;
+    if (idNumber !== undefined) user.idNumber = idNumber;
 
     await user.save();
 
@@ -227,6 +235,8 @@ const updateProfile = async (req, res) => {
           email: user.email,
           role: user.role,
           vessel: user.vessel,
+          profileImage: user.profileImage,
+          idNumber: user.idNumber,
           updatedAt: user.updatedAt,
         },
       },

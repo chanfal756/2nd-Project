@@ -10,6 +10,7 @@ import Crew from './pages/Crew';
 import Maintenance from './pages/Maintenance';
 import AlertsPage from './pages/AlertsPage';
 import Settings from './pages/Settings';
+import CaptainDashboard from './pages/CaptainDashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -42,6 +43,11 @@ function App() {
           <Route path="/" element={
             <MainLayout>
               <Dashboard />
+            </MainLayout>
+          } />
+          <Route path="/captain" element={
+            <MainLayout>
+              <CaptainDashboard />
             </MainLayout>
           } />
           <Route path="/reports" element={

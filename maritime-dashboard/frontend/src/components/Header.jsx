@@ -6,7 +6,13 @@ const Header = () => {
   const user = JSON.parse(localStorage.getItem('user')) || { name: 'Captain' };
   const [apiConnected, setApiConnected] = useState(false);
 
+  const [currentTime, setCurrentTime] = useState(new Date());
+
   useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    
     const checkConnection = async () => {
       try {
         await axios.get('http://127.0.0.1:5000/health');
@@ -16,7 +22,22 @@ const Header = () => {
       }
     };
     checkConnection();
+    
+    return () => clearInterval(timer);
   }, []);
+
+  const timeString = currentTime.toLocaleTimeString([], { 
+    hour: '2-digit', 
+    minute: '2-digit', 
+    second: '2-digit', 
+    hour12: true 
+  });
+
+  const dateString = currentTime.toLocaleDateString([], { 
+    month: 'long', 
+    day: 'numeric', 
+    year: 'numeric' 
+  });
 
   return (
     <header className="ship-header shadow-md">
@@ -39,14 +60,88 @@ const Header = () => {
               <div className="flex items-center space-x-2">
                 <i className="far fa-clock"></i>
                 <div>
-                  <p className="text-sm font-medium">14:30 UTC</p>
-                  <p className="text-xs text-blue-300">October 15, 2023</p>
+                  <p className="text-sm font-medium">{timeString}</p>
+                  <p className="text-xs text-blue-300">{dateString}</p>
                 </div>
               </div>
             </div>
             
             {/* Weather */}
-            <div className="hidden md:block bg-blue-800/30 px-4 py-2 rounded-lg text-white">
+            <div 
+              onClick={() => {
+                Swal.fire({
+                  title: '',
+                  html: `
+                    <div class="weather-ios-container text-left text-white overflow-hidden -mt-8">
+                      <div class="weather-ios-header text-center mb-6 pt-4">
+                        <h2 class="text-2xl font-semibold mb-0">Malacca Strait</h2>
+                        <p class="text-6xl font-thin my-2">28°</p>
+                        <p class="text-lg font-medium opacity-80">Clear</p>
+                        <div class="flex justify-center space-x-2 text-sm">
+                          <span>H:31°</span>
+                          <span>L:24°</span>
+                        </div>
+                      </div>
+
+                      <div class="weather-ios-scroll mb-6 p-4 bg-white/10 rounded-2xl backdrop-blur-md">
+                        <p class="text-xs uppercase font-bold opacity-60 mb-3 border-b border-white/10 pb-2">7-Day Forecast</p>
+                        <div class="space-y-4">
+                          ${[
+                            { day: 'Today', icon: 'fa-sun', condition: 'Sunny', high: 31, low: 24, text: 'text-yellow-300' },
+                            { day: 'Fri', icon: 'fa-cloud-sun', condition: 'Partly Cloudy', high: 30, low: 23, text: 'text-blue-200' },
+                            { day: 'Sat', icon: 'fa-cloud-rain', condition: 'Showers', high: 27, low: 22, text: 'text-blue-400' },
+                            { day: 'Sun', icon: 'fa-sun', condition: 'Sunny', high: 32, low: 25, text: 'text-yellow-300' },
+                            { day: 'Mon', icon: 'fa-sun', condition: 'Clear', high: 31, low: 24, text: 'text-yellow-300' },
+                            { day: 'Tue', icon: 'fa-cloud', condition: 'Cloudy', high: 28, low: 23, text: 'text-gray-300' },
+                            { day: 'Wed', icon: 'fa-bolt', condition: 'Storms', high: 26, low: 21, text: 'text-purple-300' },
+                          ].map(item => `
+                            <div class="flex items-center justify-between">
+                              <span class="w-12 font-medium">${item.day}</span>
+                              <div class="flex-1 flex items-center justify-center">
+                                <i class="fas ${item.icon} ${item.text} text-lg"></i>
+                              </div>
+                              <div class="flex items-center space-x-3">
+                                <span class="w-8 text-right opacity-60">${item.low}°</span>
+                                <div class="w-24 h-1.5 bg-white/20 rounded-full relative overflow-hidden">
+                                  <div class="absolute left-1/4 right-1/4 h-full bg-gradient-to-r from-blue-400 to-yellow-400 rounded-full"></div>
+                                </div>
+                                <span class="w-8 font-bold">${item.high}°</span>
+                              </div>
+                            </div>
+                          `).join('')}
+                        </div>
+                      </div>
+
+                      <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-white/10 rounded-2xl backdrop-blur-md">
+                          <p class="text-[10px] uppercase font-bold opacity-60 mb-1 flex items-center">
+                            <i class="fas fa-wind mr-1"></i> Wind
+                          </p>
+                          <p class="text-xl font-semibold">12 kts</p>
+                          <p class="text-xs opacity-60">North Easterly</p>
+                        </div>
+                        <div class="p-4 bg-white/10 rounded-2xl backdrop-blur-md">
+                          <p class="text-[10px] uppercase font-bold opacity-60 mb-1 flex items-center">
+                            <i class="fas fa-droplet mr-1"></i> Humidity
+                          </p>
+                          <p class="text-xl font-semibold">64%</p>
+                          <p class="text-xs opacity-60">Dew point is 21°</p>
+                        </div>
+                      </div>
+                    </div>
+                  `,
+                  showConfirmButton: false,
+                  showCloseButton: true,
+                  width: '450px',
+                  background: 'linear-gradient(to bottom, #2b6cb0, #2c5282)',
+                  customClass: {
+                    container: 'weather-ios-modal',
+                    popup: 'rounded-[40px] border border-white/20 shadow-2xl overflow-hidden'
+                  }
+                });
+              }}
+              className="hidden md:block bg-blue-800/30 px-4 py-2 rounded-lg text-white cursor-pointer hover:bg-blue-700/50 transition-all border border-blue-400/20 active:scale-95"
+            >
               <div className="flex items-center space-x-2">
                 <i className="fas fa-sun text-yellow-300"></i>
                 <div>
