@@ -58,6 +58,24 @@ app.get('/health', (req, res) => {
 app.use('/api', require('./routes/index.routes'));
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/inventory', require('./routes/inventory.routes'));
+app.use('/api/reports', require('./routes/report.routes'));
+app.use('/api/vessels', require('./routes/vessel.routes'));
+app.use('/api/crew', require('./routes/crew.routes'));
+app.use('/api/alerts', require('./routes/alert.routes'));
+app.use('/api/vessel-ops', require('./routes/vesselOps.routes'));
+
+/**
+ * PRODUCTION SAAS API (VERSIONED)
+ * This structure ensures backward compatibility and multi-tenant logic.
+ */
+app.use('/api/v1', require('./api/v1'));
+
+// Initialize Background Workers (Only in Production/Enabled mode)
+const ingestionService = require('./services/ingestion.service');
+if (process.env.AIS_INGESTION_ENABLED === 'true') {
+  console.log('👷 AIS Ingestion Worker Started...');
+  ingestionService.startIngestionWorker(process.env.AIS_FEED_URL);
+}
 
 /**
  * 404 HANDLER - Catch all unmatched routes

@@ -18,6 +18,10 @@ const startServer = async () => {
     // Connect to MongoDB
     await connectDB();
 
+    // Run SaaS Migration for existing data
+    const migrateToSaaS = require('./src/migrate');
+    await migrateToSaaS();
+
     // Start Express server
     const server = app.listen(PORT, () => {
       console.log('='.repeat(50));

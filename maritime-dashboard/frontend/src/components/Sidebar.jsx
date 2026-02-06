@@ -56,9 +56,17 @@ const Sidebar = () => {
             <i className="fas fa-anchor w-6 mr-3"></i>
             <span>Command Center</span>
           </NavLink>
+          <NavLink to="/vessels" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+            <i className="fas fa-ship w-6 mr-3"></i>
+            <span>Vessel Registry</span>
+          </NavLink>
           <NavLink to="/reports" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
             <i className="fas fa-file-alt w-6 mr-3"></i>
-            <span>Daily Report</span>
+            <span>Voyage Reports</span>
+          </NavLink>
+          <NavLink to="/daily-reports" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+            <i className="fas fa-gas-pump w-6 mr-3"></i>
+            <span>Fuel & Oil Reporting</span>
           </NavLink>
           <NavLink to="/inventory" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
             <i className="fas fa-oil-can w-6 mr-3"></i>

@@ -1,51 +1,72 @@
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
+import api from '../services/api';
 
 const CaptainDashboard = () => {
-  const [updates, setUpdates] = useState([
-    {
-      id: 1,
-      title: 'Navigation Status Update',
-      content: 'Entering Malacca Strait. Standard watchkeeping procedures in effect. Weather clear, visibility good.',
-      timestamp: '2 hours ago',
-      category: 'Navigation',
-      priority: 'normal'
-    },
-    {
-      id: 2,
-      title: 'Engine Maintenance Note',
-      content: 'Aux Engine 2 fuel pressure stabilized after filter change. Monitoring continues.',
-      timestamp: '5 hours ago',
-      category: 'Engineering',
-      priority: 'high'
+  const [updates, setUpdates] = useState([]);
+  const [vessels, setVessels] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [newUpdate, setNewUpdate] = useState({ 
+    title: '', 
+    content: '', 
+    category: 'General', 
+    priority: 'normal',
+    vesselId: '' 
+  });
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [vesselsRes, alertsRes] = await Promise.all([
+        api.get('/vessels'),
+        api.get('/alerts')
+      ]);
+      
+      if (vesselsRes.data.success) setVessels(vesselsRes.data.data);
+      if (alertsRes.data.success) setUpdates(alertsRes.data.data);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
 
-  const [newUpdate, setNewUpdate] = useState({ title: '', content: '', category: 'General', priority: 'normal' });
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  const handleAddUpdate = (e) => {
+  const handleAddUpdate = async (e) => {
     e.preventDefault();
     if (!newUpdate.title || !newUpdate.content) {
-      Swal.fire('Error', 'Please fill in all fields', 'error');
+      Swal.fire('Error', 'Please fill in required fields', 'error');
       return;
     }
 
-    const update = {
-      ...newUpdate,
-      id: Date.now(),
-      timestamp: 'Just now'
-    };
+    try {
+      const response = await api.post('/alerts', {
+        title: newUpdate.title,
+        message: newUpdate.content,
+        category: newUpdate.category,
+        priority: newUpdate.priority,
+        vesselId: newUpdate.vesselId || null
+      });
 
-    setUpdates([update, ...updates]);
-    setNewUpdate({ title: '', content: '', category: 'General', priority: 'normal' });
-    
-    Swal.fire({
-      icon: 'success',
-      title: 'Update Posted',
-      text: 'Your command update has been broadcast to the crew.',
-      timer: 2000,
-      showConfirmButton: false
-    });
+      if (response.data.success) {
+        setUpdates([response.data.data, ...updates]);
+        setNewUpdate({ title: '', content: '', category: 'General', priority: 'normal', vesselId: '' });
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Broadcast Sent',
+          text: 'Alert has been published to the system and assigned vessel.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        fetchData(); // Refresh to get populated data
+      }
+    } catch (error) {
+      Swal.fire('Error', 'Failed to send broadcast', 'error');
+    }
   };
 
   return (
@@ -77,6 +98,20 @@ const CaptainDashboard = () => {
                 />
               </div>
               <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Target Vessel (Registry Choice)</label>
+                <select 
+                  value={newUpdate.vesselId}
+                  onChange={(e) => setNewUpdate({...newUpdate, vesselId: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                >
+                  <option value="">Global Fleet Alert</option>
+                  {vessels.map(v => (
+                    <option key={v._id} value={v._id}>{v.name} ({v.imo})</option>
+                  ))}
+                </select>
+                <p className="text-[10px] text-gray-400 mt-1 italic">* Select a vessel to target specific alerts, or leave blank for global broadcast.</p>
+              </div>
+              <div>
                 <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Category</label>
                 <select 
                   value={newUpdate.category}
@@ -91,7 +126,7 @@ const CaptainDashboard = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Priority</label>
+                <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Priority Level</label>
                 <div className="flex space-x-2 mt-1">
                   {['normal', 'high', 'urgent'].map(p => (
                     <button
@@ -100,8 +135,8 @@ const CaptainDashboard = () => {
                       onClick={() => setNewUpdate({...newUpdate, priority: p})}
                       className={`flex-1 py-1.5 px-2 rounded-md text-xs font-bold uppercase transition-all ${
                         newUpdate.priority === p 
-                        ? (p === 'urgent' ? 'bg-red-600 text-white' : p === 'high' ? 'bg-yellow-500 text-white' : 'bg-blue-600 text-white')
-                        : 'bg-gray-100 text-gray-400 dark:bg-gray-700'
+                        ? (p === 'urgent' ? 'bg-red-600 text-white shadow-md' : p === 'high' ? 'bg-yellow-500 text-white shadow-md' : 'bg-blue-600 text-white shadow-md')
+                        : 'bg-gray-100 text-gray-400 dark:bg-gray-700 hover:bg-gray-200'
                       }`}
                     >
                       {p}
@@ -145,14 +180,20 @@ const CaptainDashboard = () => {
                     <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
                       update.category === 'Navigation' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300' :
                       update.category === 'Engineering' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300' :
+                      update.category === 'Safety' ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' :
                       'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
                     }`}>
                       {update.category}
                     </span>
-                    <span className="text-[10px] text-gray-400 font-medium">{update.timestamp}</span>
+                    {update.vessel && (
+                      <span className="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase flex items-center">
+                        <i className="fas fa-ship mr-1 text-[8px]"></i> {update.vessel.name}
+                      </span>
+                    )}
+                    <span className="text-[10px] text-gray-400 font-medium">{new Date(update.createdAt).toLocaleString()}</span>
                   </div>
-                  <h4 className="font-bold text-lg text-gray-800 dark:text-gray-100 group-hover:text-blue-600 transition-colors">{update.title}</h4>
-                  <p className="text-gray-600 dark:text-gray-400 mt-2 text-sm leading-relaxed">{update.content}</p>
+                  <h4 className="font-bold text-lg text-gray-800 dark:text-gray-100 group-hover:text-blue-600 transition-colors uppercase tracking-tight">{update.title}</h4>
+                  <p className="text-gray-600 dark:text-gray-400 mt-2 text-sm leading-relaxed">{update.message || update.content}</p>
                 </div>
                 {update.priority === 'urgent' && (
                   <div className="animate-pulse">

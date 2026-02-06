@@ -1,203 +1,177 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
-import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 
 const Maintenance = () => {
-  const navigate = useNavigate();
-  const [tasks, setTasks] = useState([
-    { id: 1, task: 'Main Engine Injector Inspection', system: 'Propulsion', due: 'In 2 days', priority: 'High', status: 'Pending' },
-    { id: 2, task: 'Emergency Gen. Load Test', system: 'Emergency', due: 'In 3 days', priority: 'Medium', status: 'Pending' },
-    { id: 3, task: 'Fire Pump Annual Service', system: 'Safety', due: 'In 5 days', priority: 'High', status: 'Pending' },
-    { id: 4, task: 'A/C Condenser Cleaning', system: 'Auxiliary', due: 'In 6 days', priority: 'Low', status: 'Pending' },
-  ]);
+  const [logs, setLogs] = useState([]);
+  const [vessels, setVessels] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [orderStatus, setOrderStatus] = useState('Pending'); // 'Pending' (needs order) or 'Placed'
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [logsRes, vesselsRes] = await Promise.all([
+        api.get('/vessel-ops/maintenance'),
+        api.get('/vessels')
+      ]);
+      setLogs(logsRes.data.data);
+      setVessels(vesselsRes.data.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleTelemetry = () => {
-    Swal.fire({
-      title: 'Engine Telemetry - Live Data',
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleLogWork = async () => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Log Maintenance Work',
       width: '600px',
       html: `
-        <div class="text-left font-mono text-sm bg-black text-green-400 p-4 rounded-lg">
-          <div class="mb-2 border-b border-green-800 pb-2">DATA SOURCE: MAIN ENGINE CONTROL UNIT (MECU-A)</div>
-          
+        <div class="text-left space-y-4">
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <div class="text-gray-500">CYLINDER EXHAUST TEMPS</div>
-              <div class="flex justify-between"><span>CYL 1:</span> <span>382°C</span></div>
-              <div class="flex justify-between"><span>CYL 2:</span> <span>384°C</span></div>
-              <div class="flex justify-between"><span class="text-red-500">CYL 3:</span> <span class="text-red-500 animate-pulse">385°C ▲</span></div>
-              <div class="flex justify-between"><span>CYL 4:</span> <span>380°C</span></div>
-              <div class="flex justify-between"><span>CYL 5:</span> <span>381°C</span></div>
-              <div class="flex justify-between"><span>CYL 6:</span> <span>383°C</span></div>
+              <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Vessel</label>
+              <select id="swal-vessel" class="w-full p-2 border rounded-lg text-sm">
+                ${vessels.map(v => `<option value="${v._id}">${v.name}</option>`).join('')}
+              </select>
             </div>
-            
             <div>
-              <div class="text-gray-500">SYSTEM PRESSURES</div>
-              <div class="flex justify-between"><span>SCAVENGE AIR:</span> <span>2.8 Bar</span></div>
-              <div class="flex justify-between"><span>LUBE OIL:</span> <span>4.2 Bar</span></div>
-              <div class="flex justify-between"><span>JACKET WATER:</span> <span>3.5 Bar</span></div>
-              <div class="flex justify-between"><span>FUEL OIL:</span> <span>7.8 Bar</span></div>
-              <div class="mt-4 text-gray-500">TURBOCHARGER</div>
-              <div class="flex justify-between"><span>RPM:</span> <span>12,450</span></div>
-              <div class="flex justify-between"><span>VIB:</span> <span>4.2 mm/s</span></div>
+              <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Component</label>
+              <input id="swal-component" type="text" class="w-full p-2 border rounded-lg text-sm" placeholder="e.g. Main Engine">
             </div>
           </div>
-          <div class="mt-4 border-t border-green-800 pt-2 text-xs text-center animate-pulse">
-            ● LIVE STREAM ACTIVE
+          <div>
+            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Task Title</label>
+            <input id="swal-title" type="text" class="w-full p-2 border rounded-lg text-sm" placeholder="Work performed...">
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Type</label>
+              <select id="swal-type" class="w-full p-2 border rounded-lg text-sm">
+                <option>Routine</option>
+                <option>Oil Change</option>
+                <option>Overhaul</option>
+                <option>Breakdown</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Engine Hours</label>
+              <input id="swal-hours" type="number" class="w-full p-2 border rounded-lg text-sm">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Full Description</label>
+            <textarea id="swal-desc" class="w-full p-2 border rounded-lg text-sm h-32"></textarea>
           </div>
         </div>
       `,
-      confirmButtonText: 'Close Telemetry',
-      confirmButtonColor: '#374151'
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Submit Log',
+      preConfirm: () => {
+        return {
+          vesselId: document.getElementById('swal-vessel').value,
+          component: document.getElementById('swal-component').value,
+          title: document.getElementById('swal-title').value,
+          type: document.getElementById('swal-type').value,
+          engineHours: document.getElementById('swal-hours').value,
+          description: document.getElementById('swal-desc').value,
+        }
+      }
     });
+
+    if (formValues) {
+      if (!formValues.title || !formValues.component || !formValues.description) {
+        Swal.fire('Required fields missing', '', 'error');
+        return;
+      }
+      try {
+        const res = await api.post('/vessel-ops/maintenance', formValues);
+        if (res.data.success) {
+          Swal.fire('Success', 'Maintenance task logged.', 'success');
+          fetchData();
+        }
+      } catch (err) {
+        Swal.fire('Error', err.response?.data?.message || 'Failed to log work', 'error');
+      }
+    }
   };
 
   return (
     <div className="space-y-6 fade-in">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Maintenance Schedule</h2>
-        <div className="flex space-x-2">
-           <button onClick={() => navigate('/inventory')} className="btn btn-secondary">PMS Inventory</button>
-           <button className="btn btn-primary"><i className="fas fa-tools mr-2"></i> Log Work</button>
+      <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border-b">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800">Maintenance & PMS</h2>
+          <p className="text-gray-500 text-sm">Planned Maintenance System and work logs.</p>
         </div>
+        <button onClick={handleLogWork} className="btn btn-primary shadow-lg">
+          <i className="fas fa-tools mr-2"></i> Log New Work
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-           <div className="card">
-              <div className="card-header">
-                 <h3 className="font-semibold">Upcoming Tasks (Next 7 Days)</h3>
+           <div className="card overflow-hidden">
+              <div className="card-header bg-gray-50 border-b flex justify-between items-center">
+                 <h3 className="font-bold text-gray-700">Maintenance Work History</h3>
+                 <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold uppercase tracking-widest">Fleet Logs</span>
               </div>
               <div className="p-0">
-                 {tasks.map((job) => (
-                   <div key={job.id} className="flex items-center justify-between p-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
-                      <div className="flex items-start space-x-4">
-                         <div className={`mt-1 w-2 h-2 rounded-full ${job.priority === 'High' ? 'bg-red-500' : job.priority === 'Medium' ? 'bg-yellow-500' : 'bg-blue-500'}`}></div>
-                         <div>
-                            <p className="font-bold text-gray-800">{job.task}</p>
-                            <p className="text-xs text-gray-500">{job.system} • Due {job.due}</p>
-                         </div>
-                      </div>
-                      
-                      {job.status === 'Pending' ? (
-                        <button 
-                          onClick={() => handleStartTask(job)}
-                          className="text-blue-600 hover:bg-blue-50 px-3 py-1 rounded text-sm font-bold transition-colors"
-                        >
-                          Start
-                        </button>
-                      ) : (
-                        <span className="text-orange-500 bg-orange-50 px-3 py-1 rounded text-xs font-bold border border-orange-100 animate-pulse">
-                          In Progress
-                        </span>
-                      )}
-                   </div>
-                 ))}
-              </div>
-           </div>
-
-           <div className={`card p-6 text-white border-none transition-colors duration-500 ${orderStatus === 'Placed' ? 'bg-green-700' : 'bg-blue-900'}`}>
-              <div className="flex items-center justify-between">
-                 <div>
-                    <h4 className="text-lg font-bold">Critical Spare Parts</h4>
-                    <p className={`text-sm ${orderStatus === 'Placed' ? 'text-green-100' : 'text-blue-200'}`}>
-                      {orderStatus === 'Placed' ? 'Replenishment Order #PO-2024-889 Pending' : '3 items below minimum threshold'}
-                    </p>
-                 </div>
-                 <i className={`fas ${orderStatus === 'Placed' ? 'fa-check-circle text-green-400' : 'fa-boxes text-blue-400'} text-4xl opacity-50`}></i>
-              </div>
-              <div className="mt-6 flex space-x-4">
-                 {orderStatus === 'Pending' ? (
-                   <button 
-                     onClick={() => {
-                       Swal.fire({
-                         title: 'Critical Spares Order',
-                         html: `
-                           <div class="text-left bg-gray-50 p-3 rounded">
-                             <div class="flex justify-between border-b pb-2 mb-2">
-                               <span>Main Engine Piston Rings</span>
-                               <span className="font-bold">2 Sets</span>
-                             </div>
-                             <div class="flex justify-between border-b pb-2 mb-2">
-                               <span>Aux. Diesel Fuel Filters</span>
-                               <span className="font-bold">12 Units</span>
-                             </div>
-                             <div class="flex justify-between">
-                               <span>Hydraulic Seal Kits</span>
-                               <span className="font-bold">4 Kits</span>
-                             </div>
-                           </div>
-                         `,
-                         confirmButtonText: 'Confirm Purchase Order',
-                         showCancelButton: true,
-                         confirmButtonColor: '#2563eb'
-                       }).then(res => {
-                         if(res.isConfirmed) {
-                           setOrderStatus('Placed');
-                           Swal.fire('Ordered!', 'Purchase Order #PO-2024-889 created.', 'success');
-                         }
-                       });
-                     }}
-                     className="flex-1 bg-white text-blue-900 py-2 rounded-lg font-bold text-sm hover:bg-blue-50 transition-colors"
-                   >
-                     Order Now
-                   </button>
+                 {loading ? (
+                   <div className="p-20 text-center"><i className="fas fa-sync fa-spin text-blue-500 text-2xl"></i></div>
+                 ) : logs.length > 0 ? (
+                   logs.map((log) => (
+                    <div key={log._id} className="flex items-start justify-between p-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
+                       <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded font-bold uppercase">{log.type}</span>
+                            <span className="text-[10px] bg-green-50 text-green-600 px-2 py-0.5 rounded font-bold uppercase">{log.component}</span>
+                          </div>
+                          <h4 className="font-bold text-gray-800">{log.title}</h4>
+                          <p className="text-sm text-gray-500 mt-1 line-clamp-2">{log.description}</p>
+                          <div className="mt-2 flex items-center space-x-4 text-[10px] text-gray-400 font-medium">
+                            <span><i className="fas fa-ship mr-1"></i> {log.vesselId?.name}</span>
+                            <span><i className="fas fa-calendar mr-1"></i> {new Date(log.datePerformed).toLocaleDateString()}</span>
+                            {log.engineHours && <span><i className="fas fa-clock mr-1"></i> {log.engineHours} hrs</span>}
+                          </div>
+                       </div>
+                       <div className="ml-4">
+                         <button className="text-blue-500 hover:text-blue-700 text-sm font-bold">Details</button>
+                       </div>
+                    </div>
+                   ))
                  ) : (
-                   <button 
-                     onClick={() => Swal.fire('Order Status', 'PO-2024-889 is currently being processed by HQ. ETA: 3 Days.', 'info')}
-                     className="flex-1 bg-white text-green-900 py-2 rounded-lg font-bold text-sm hover:bg-green-50 transition-colors"
-                   >
-                     Track Order
-                   </button>
+                   <div className="p-20 text-center text-gray-400 italic">No maintenance logs found.</div>
                  )}
-                 <button 
-                   onClick={() => navigate('/inventory')}
-                   className={`flex-1 text-white py-2 rounded-lg font-bold text-sm transition-colors ${orderStatus === 'Placed' ? 'bg-green-800 hover:bg-green-900' : 'bg-blue-800 hover:bg-blue-700'}`}
-                 >
-                   View Stock
-                 </button>
               </div>
            </div>
         </div>
 
         <div className="space-y-6">
-           <div className="card p-6">
-              <h3 className="font-bold text-gray-800 mb-6 uppercase text-xs tracking-wider">Engine Performance</h3>
-              <div className="space-y-6">
-                 <div>
-                    <div className="flex justify-between text-xs mb-1 font-bold">
-                       <span>ME LOAD</span>
-                       <span>85%</span>
-                    </div>
-                    <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
-                       <div className="bg-blue-600 h-full" style={{ width: '85%' }}></div>
-                    </div>
+           <div className="card p-6 bg-gradient-to-br from-gray-900 to-blue-900 text-white border-none shadow-xl">
+              <h3 className="font-bold uppercase text-[10px] tracking-widest text-blue-300 mb-4">Quick Stats</h3>
+              <div className="space-y-4">
+                 <div className="bg-white/10 p-3 rounded-lg border border-white/5">
+                    <p className="text-xs text-blue-200">Total Logs (30d)</p>
+                    <p className="text-2xl font-bold">{logs.length}</p>
                  </div>
-                 <div>
-                    <div className="flex justify-between text-xs mb-1 font-bold">
-                       <span>SCAVENGE AIR TEMP</span>
-                       <span>42°C</span>
-                    </div>
-                    <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
-                       <div className="bg-green-500 h-full" style={{ width: '60%' }}></div>
-                    </div>
+                 <div className="bg-white/10 p-3 rounded-lg border border-white/5">
+                    <p className="text-xs text-blue-200">Critical Breakdown</p>
+                    <p className="text-2xl font-bold text-red-400">{logs.filter(l => l.type === 'Breakdown').length}</p>
                  </div>
-                 <div>
-                    <div className="flex justify-between text-xs mb-1 font-bold text-red-600">
-                       <span>CYL 3 EXH. GAS TEMP</span>
-                       <span>385°C</span>
-                    </div>
-                    <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
-                       <div className="bg-red-500 h-full" style={{ width: '92%' }}></div>
-                    </div>
-                 </div>
-               </div>
-               <div className="mt-8 pt-6 border-t border-gray-100">
-                  <button onClick={handleTelemetry} className="w-full text-blue-600 font-bold text-sm hover:underline">View Full Telemetry →</button>
-               </div>
-            </div>
-         </div>
+              </div>
+              <div className="mt-8 pt-6 border-t border-white/10">
+                 <button className="w-full py-2 bg-blue-600 text-white rounded-lg font-bold text-xs hover:bg-blue-500 transition-all uppercase tracking-widest">
+                   Export PMS Report
+                 </button>
+              </div>
+           </div>
+        </div>
       </div>
     </div>
   );

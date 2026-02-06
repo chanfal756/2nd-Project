@@ -1,4 +1,13 @@
 const Inventory = require('../models/inventory.model');
+const Vessel = require('../models/vessel.model');
+const Organization = require('../models/organization.model');
+
+// Helper to get OrgId with SaaS fallback
+const getOrgId = async (user) => {
+  if (user.orgId) return user.orgId;
+  const defaultOrg = await Organization.findOne({ slug: 'default' });
+  return defaultOrg ? defaultOrg._id : null;
+};
 
 /**
  * @desc    Get inventory for current vessel
@@ -7,36 +16,54 @@ const Inventory = require('../models/inventory.model');
  */
 const getInventory = async (req, res) => {
   try {
-    // Ensure user exists
-    if (!req.user || !req.user._id) {
-      console.error('❌ User ID missing in request');
-      return res.status(401).json({ success: false, message: 'User not authenticated' });
-    }
-
-    const vesselId = req.user._id;
-    console.log(`🔍 Fetching inventory for Vessel ID: ${vesselId}`);
+    const orgId = await getOrgId(req.user);
     
-    let inventory = await Inventory.findOne({ vesselId });
-
-    // Create default inventory if not exists
-    if (!inventory) {
-      console.log('📝 No inventory found, creating default data...');
-      try {
-        inventory = await Inventory.create({
-          vesselId,
-          hfo: { current: 450.5, capacity: 600, dailyConsumption: 12.2 },
-          mgo: { current: 85.2, capacity: 120, dailyConsumption: 2.5 }
-        });
-        console.log('✅ Default inventory created successfully');
-      } catch (createError) {
-        console.error('❌ Failed to create default inventory:', createError);
-        throw new Error('Failed to initialize vessel inventory: ' + createError.message);
-      }
+    // Find the first vessel for this org if none specified
+    let vessel = await Vessel.findOne({ orgId });
+    if (!vessel) {
+      // Create a dummy vessel if none exist yet to prevent total failure
+      vessel = await Vessel.create({
+        name: 'MV Ocean Star',
+        imo: '9999999',
+        type: 'General Cargo',
+        flag: 'Marshall Islands',
+        orgId
+      });
     }
+
+    const vesselId = vessel._id;
+    
+    // Check if items exist
+    let items = await Inventory.find({ vesselId, orgId });
+
+    // Auto-setup if empty
+    if (items.length === 0) {
+      const defaultItems = [
+        { itemType: 'HFO', itemName: 'Heavy Fuel Oil', currentQuantity: 450.5, capacity: 600, unit: 'MT', vesselId, orgId },
+        { itemType: 'MGO', itemName: 'Marine Gas Oil', currentQuantity: 85.2, capacity: 120, unit: 'MT', vesselId, orgId }
+      ];
+      items = await Inventory.insertMany(defaultItems);
+    }
+
+    // Transform for frontend legacy support
+    const hfo = items.find(i => i.itemType === 'HFO') || { currentQuantity: 0, capacity: 600 };
+    const mgo = items.find(i => i.itemType === 'MGO') || { currentQuantity: 0, capacity: 120 };
 
     res.status(200).json({
       success: true,
-      data: inventory,
+      data: {
+        lastUpdated: new Date(),
+        hfo: {
+          current: hfo.currentQuantity,
+          capacity: hfo.capacity || 600,
+          dailyConsumption: 12.2 // Mock for now
+        },
+        mgo: {
+          current: mgo.currentQuantity,
+          capacity: mgo.capacity || 120,
+          dailyConsumption: 2.5 // Mock for now
+        }
+      },
     });
   } catch (error) {
     console.error('❌ Inventory fetch error:', error);
@@ -48,30 +75,37 @@ const getInventory = async (req, res) => {
 };
 
 /**
- * @desc    Update inventory levels (e.g. after bunkering)
+ * @desc    Update inventory levels
  * @route   PUT /api/inventory/update
  * @access  Private
  */
 const updateInventory = async (req, res) => {
   try {
     const { hfo, mgo } = req.body;
+    const orgId = await getOrgId(req.user);
+    const vessel = await Vessel.findOne({ orgId });
     
-    let inventory = await Inventory.findOne({ vesselId: req.user.id });
+    if (!vessel) return res.status(404).json({ success: false, message: 'Vessel not found' });
 
-    if (!inventory) {
-      inventory = new Inventory({ vesselId: req.user.id });
+    if (hfo && hfo.current !== undefined) {
+      await Inventory.findOneAndUpdate(
+        { vesselId: vessel._id, itemType: 'HFO', orgId },
+        { currentQuantity: hfo.current },
+        { upsert: true }
+      );
     }
 
-    if (hfo) inventory.hfo = { ...inventory.hfo, ...hfo };
-    if (mgo) inventory.mgo = { ...inventory.mgo, ...mgo };
-    
-    inventory.lastUpdated = Date.now();
-    await inventory.save();
+    if (mgo && mgo.current !== undefined) {
+      await Inventory.findOneAndUpdate(
+        { vesselId: vessel._id, itemType: 'MGO', orgId },
+        { currentQuantity: mgo.current },
+        { upsert: true }
+      );
+    }
 
     res.status(200).json({
       success: true,
-      message: 'Inventory updated successfully',
-      data: inventory,
+      message: 'Inventory updated successfully'
     });
   } catch (error) {
     res.status(500).json({

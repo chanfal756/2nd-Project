@@ -53,6 +53,13 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    orgId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Organization',
+      required: false, // Temporary false to allow migration, but will be enforced
+      index: true,
+    },
+    permissions: [String],
   },
   {
     timestamps: true, // Adds createdAt and updatedAt automatically

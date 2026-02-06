@@ -20,17 +20,17 @@ const Dashboard = () => {
   return (
     <div className="space-y-6 fade-in">
       {/* Alert Banner */}
-      <div className="alert alert-warning flex items-start p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 rounded-r-lg">
-        <i className="fas fa-exclamation-triangle mr-3 text-lg mt-0.5"></i>
+      <div className="alert alert-warning flex items-start p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 rounded-r-lg shadow-sm">
+        <i className="fas fa-gas-pump mr-3 text-lg mt-0.5"></i>
         <div className="flex-1">
-          <p className="font-medium">Daily report due in 2 hours</p>
-          <p className="text-sm mt-1">Please submit today's oil consumption report by 23:59 UTC</p>
+          <p className="font-bold uppercase text-xs tracking-wider">Noon Report Pending</p>
+          <p className="text-sm mt-1 font-medium">Daily fuel consumption and engine hours report for MV Ocean Star is due.</p>
         </div>
         <button 
-          onClick={handleSubmitReport}
-          className="btn btn-primary text-xs px-3 py-1"
+          onClick={() => window.location.href = '/daily-reports'}
+          className="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 font-bold text-[10px] px-3 py-1.5 rounded transition-colors uppercase tracking-widest border border-yellow-200"
         >
-          Submit Now
+          Report Now
         </button>
       </div>
 
@@ -94,11 +94,11 @@ const Dashboard = () => {
               }
             });
           }}
-          className="card stat-card success p-4 cursor-pointer hover:shadow-lg transition-shadow"
+          className="card stat-card success p-4 cursor-pointer hover:shadow-lg transition-all hover:-translate-y-1"
         >
           <div className="flex justify-between items-start mb-4">
             <div>
-              <p className="text-gray-500 text-sm">Fuel Efficiency</p>
+              <p className="text-gray-500 text-sm">Fuel Efficiency (Monthly)</p>
               <h3 className="text-2xl font-bold text-gray-800 mt-1">98.2%</h3>
             </div>
             <div className="w-10 h-10 rounded-lg bg-green-100 text-green-600 flex items-center justify-center">
@@ -106,8 +106,8 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="flex items-center text-xs text-green-600 font-medium">
-            <i className="fas fa-arrow-up mr-1"></i>
-            <span>2.1% better than fleet avg</span>
+            <i className="fas fa-arrow-up mr-1 text-[8px]"></i>
+            <span onClick={(e) => { e.stopPropagation(); window.location.href = '/daily-reports'; }} className="hover:underline">View Consumption Trends</span>
           </div>
         </div>
 

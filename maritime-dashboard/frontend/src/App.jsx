@@ -13,6 +13,8 @@ import Settings from './pages/Settings';
 import CaptainDashboard from './pages/CaptainDashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Vessels from './pages/Vessels';
+import DailyReports from './pages/DailyReports';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Layout component to wrap Sidebar and Header
@@ -58,6 +60,16 @@ function App() {
           <Route path="/inventory" element={
             <MainLayout>
               <Inventory />
+            </MainLayout>
+          } />
+          <Route path="/daily-reports" element={
+            <MainLayout>
+              <DailyReports />
+            </MainLayout>
+          } />
+          <Route path="/vessels" element={
+            <MainLayout>
+              <Vessels />
             </MainLayout>
           } />
           <Route path="/navigation" element={

@@ -4,28 +4,52 @@ const inventorySchema = new mongoose.Schema(
   {
     vesselId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'Vessel',
       required: true,
     },
-    hfo: {
-      current: { type: Number, default: 0 },
-      capacity: { type: Number, default: 600 },
-      dailyConsumption: { type: Number, default: 0 },
+    orgId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Organization',
+      required: true,
+      index: true,
     },
-    mgo: {
-      current: { type: Number, default: 0 },
-      capacity: { type: Number, default: 120 },
-      dailyConsumption: { type: Number, default: 0 },
+    itemType: {
+      type: String,
+      enum: ['HFO', 'MGO', 'Lube Oil', 'Cylinder Oil', 'Spare Part', 'Provision'],
+      required: true,
     },
-    lastUpdated: {
-      type: Date,
-      default: Date.now,
+    itemName: {
+      type: String,
+      required: true,
     },
+    currentQuantity: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    unit: {
+      type: String,
+      default: 'MT', // Metric Tons
+    },
+    capacity: {
+      type: Number,
+    },
+    minSafetyLevel: {
+      type: Number,
+      default: 10,
+    },
+    lastUpdatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    }
   },
   {
     timestamps: true,
   }
 );
+
+// Index for quick lookup per vessel/org
+inventorySchema.index({ vesselId: 1, itemType: 1 });
 
 const Inventory = mongoose.model('Inventory', inventorySchema);
 
