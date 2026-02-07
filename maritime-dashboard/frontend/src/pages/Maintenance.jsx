@@ -27,6 +27,47 @@ const Maintenance = () => {
     fetchData();
   }, []);
 
+  const handleViewDetails = (log) => {
+    Swal.fire({
+      title: 'Maintenance Log Details',
+      html: `
+        <div class="text-left space-y-4 p-2">
+          <div class="flex justify-between border-b pb-2">
+            <span class="text-gray-500">Vessel:</span>
+            <span class="font-bold text-blue-800">${log.vesselId?.name || 'N/A'}</span>
+          </div>
+          <div class="flex justify-between border-b pb-2">
+            <span class="text-gray-500">Component:</span>
+            <span class="font-semibold text-green-600">${log.component}</span>
+          </div>
+          <div class="flex justify-between border-b pb-2">
+            <span class="text-gray-500">Task Title:</span>
+            <span class="font-semibold">${log.title}</span>
+          </div>
+          <div class="flex justify-between border-b pb-2">
+            <span class="text-gray-500">Type:</span>
+            <span class="badge badge-primary uppercase">${log.type}</span>
+          </div>
+          <div class="flex justify-between border-b pb-2">
+            <span class="text-gray-500">Engine Hours:</span>
+            <span class="font-bold">${log.engineHours || 'N/A'} hrs</span>
+          </div>
+          <div class="flex justify-between border-b pb-2">
+            <span class="text-gray-500">Date:</span>
+            <span class="font-medium">${new Date(log.datePerformed).toLocaleDateString()}</span>
+          </div>
+          <div class="bg-gray-50 p-3 rounded-lg mt-4 border">
+            <p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Full Description</p>
+            <p class="text-sm text-gray-700 whitespace-pre-wrap">${log.description}</p>
+          </div>
+        </div>
+      `,
+      icon: 'info',
+      confirmButtonText: 'Close',
+      confirmButtonColor: '#2563eb',
+    });
+  };
+
   const handleLogWork = async () => {
     const { value: formValues } = await Swal.fire({
       title: 'Log Maintenance Work',
@@ -141,7 +182,12 @@ const Maintenance = () => {
                           </div>
                        </div>
                        <div className="ml-4">
-                         <button className="text-blue-500 hover:text-blue-700 text-sm font-bold">Details</button>
+                          <button 
+                            onClick={() => handleViewDetails(log)}
+                            className="text-blue-500 hover:text-blue-700 text-sm font-bold transition-colors"
+                          >
+                            Details
+                          </button>
                        </div>
                     </div>
                    ))

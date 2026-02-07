@@ -63,6 +63,7 @@ app.use('/api/vessels', require('./routes/vessel.routes'));
 app.use('/api/crew', require('./routes/crew.routes'));
 app.use('/api/alerts', require('./routes/alert.routes'));
 app.use('/api/vessel-ops', require('./routes/vesselOps.routes'));
+app.use('/api/fleet', require('./routes/fleet.routes'));
 
 /**
  * PRODUCTION SAAS API (VERSIONED)

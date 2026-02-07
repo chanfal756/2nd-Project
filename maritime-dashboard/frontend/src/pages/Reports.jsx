@@ -73,14 +73,24 @@ const Reports = () => {
           const type = e.target.value;
           if (type === 'Noon Report') {
             container.innerHTML = `
-              <div class="grid grid-cols-2 gap-2">
-                <div>
-                  <label class="text-[10px] uppercase text-gray-500">Position</label>
-                  <input id="swal-pos" type="text" class="w-full p-1 border rounded text-sm" placeholder="Lat/Long">
+              <div class="space-y-3">
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="text-[10px] uppercase text-gray-500 font-bold">GPS Position</label>
+                    <input id="swal-pos" type="text" class="w-full p-2 border rounded text-xs" placeholder="e.g. 01°23'N 103°45'E">
+                  </div>
+                  <div>
+                    <label class="text-[10px] uppercase text-gray-500 font-bold">Speed (kts)</label>
+                    <input id="swal-speed" type="text" class="w-full p-2 border rounded text-xs" placeholder="12.5">
+                  </div>
                 </div>
                 <div>
-                  <label class="text-[10px] uppercase text-gray-500">Speed (kts)</label>
-                  <input id="swal-speed" type="text" class="w-full p-1 border rounded text-sm" placeholder="12.5">
+                  <label class="text-[10px] uppercase text-gray-500 font-bold">Fuel Type</label>
+                  <select id="swal-fuel-type" class="w-full p-2 border rounded text-xs">
+                    <option>HFO (Heavy Fuel Oil)</option>
+                    <option>MGO (Marine Gas Oil)</option>
+                    <option>VLSFO (Low Sulfur)</option>
+                  </select>
                 </div>
               </div>
             `;
@@ -88,20 +98,31 @@ const Reports = () => {
             container.innerHTML = `
               <div class="grid grid-cols-2 gap-2">
                 <div>
-                  <label class="text-[10px] uppercase text-gray-500">Port</label>
-                  <input id="swal-port" type="text" class="w-full p-1 border rounded text-sm" placeholder="Port Name">
+                  <label class="text-[10px] uppercase text-gray-500">Port / Anchorage</label>
+                  <input id="swal-port" type="text" class="w-full p-2 border rounded text-sm" placeholder="Port Name">
                 </div>
                 <div>
-                  <label class="text-[10px] uppercase text-gray-500">Draft (Fwd/Aft)</label>
-                  <input id="swal-draft" type="text" class="w-full p-1 border rounded text-sm" placeholder="8.5m / 9.2m">
+                  <label class="text-[10px] uppercase text-gray-500">GPS Coords</label>
+                  <input id="swal-pos" type="text" class="w-full p-2 border rounded text-sm" placeholder="Lat/Lon">
                 </div>
               </div>
             `;
           } else {
             container.innerHTML = `
-              <div>
-                <label class="text-[10px] uppercase text-gray-500">Operation / Tank</label>
-                <input id="swal-op" type="text" class="w-full p-1 border rounded text-sm" placeholder="Bunkering / Fuel Tank 1">
+              <div class="space-y-3">
+                <div>
+                  <label class="text-[10px] uppercase text-gray-500 font-bold">Oil Type</label>
+                  <select id="swal-oil-type" class="w-full p-2 border rounded text-xs">
+                    <option>Main Engine Lube Oil</option>
+                    <option>Aux Engine Lube Oil</option>
+                    <option>Hydraulic Oil</option>
+                    <option>Sludge / Waste Oil</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-[10px] uppercase text-gray-500 font-bold">Operation / Tank</label>
+                  <input id="swal-op" type="text" class="w-full p-2 border rounded text-xs" placeholder="Bunkering / Transfer">
+                </div>
               </div>
             `;
           }
@@ -122,11 +143,14 @@ const Reports = () => {
           if (reportType === 'Noon Report') {
             details.position = document.getElementById('swal-pos')?.value;
             details.speed = document.getElementById('swal-speed')?.value;
+            details.fuelType = document.getElementById('swal-fuel-type')?.value;
           } else if (reportType.includes('Arrival') || reportType.includes('Departure')) {
             details.port = document.getElementById('swal-port')?.value;
+            details.position = document.getElementById('swal-pos')?.value;
             details.draft = { forward: document.getElementById('swal-draft')?.value };
           } else {
             details.operation = document.getElementById('swal-op')?.value;
+            details.oilType = document.getElementById('swal-oil-type')?.value;
           }
 
           const response = await api.post('/reports', {

@@ -14,6 +14,7 @@ import CaptainDashboard from './pages/CaptainDashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Vessels from './pages/Vessels';
+import FleetManagement from './pages/FleetManagement';
 import DailyReports from './pages/DailyReports';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -70,6 +71,11 @@ function App() {
           <Route path="/vessels" element={
             <MainLayout>
               <Vessels />
+            </MainLayout>
+          } />
+          <Route path="/fleet" element={
+            <MainLayout>
+              <FleetManagement />
             </MainLayout>
           } />
           <Route path="/navigation" element={

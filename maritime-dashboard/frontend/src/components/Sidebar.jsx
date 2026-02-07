@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
+import { Ship } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 const Sidebar = () => {
@@ -30,18 +31,21 @@ const Sidebar = () => {
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <div 
             onClick={() => navigate('/settings')}
-            className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 p-2 -m-2 rounded-lg transition-all"
+            className="group flex items-center space-x-3 cursor-pointer p-2 -m-2 rounded-xl transition-all duration-300"
           >
-            <div className="ship-icon">
-              <i className="fas fa-ship"></i>
-            </div>
-            <div>
-              <h1 className="font-bold text-lg dark:text-gray-100">Captain Dashboard</h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400">MV Ocean Star</p>
-              <div className="flex items-center mt-1">
-                <span className="status-indicator status-online"></span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">Online</span>
+            <div className="relative">
+              <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-none transition-transform group-hover:scale-110 duration-300">
+                <Ship className="text-white" size={24} />
               </div>
+              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-4 border-white dark:border-gray-800 rounded-full"></div>
+            </div>
+            <div className="flex flex-col">
+              <h1 className="font-extrabold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-500 dark:from-indigo-400 dark:to-blue-300 leading-none">
+                LubeTrack
+              </h1>
+              <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mt-1 ml-0.5">
+                Marine Systems
+              </span>
             </div>
           </div>
         </div>
@@ -59,6 +63,10 @@ const Sidebar = () => {
           <NavLink to="/vessels" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
             <i className="fas fa-ship w-6 mr-3"></i>
             <span>Vessel Registry</span>
+          </NavLink>
+          <NavLink to="/fleet" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+            <i className="fas fa-chart-line w-6 mr-3"></i>
+            <span>Fleet Management</span>
           </NavLink>
           <NavLink to="/reports" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
             <i className="fas fa-file-alt w-6 mr-3"></i>
@@ -96,22 +104,34 @@ const Sidebar = () => {
         </nav>
         
         {/* User Profile */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center space-x-3 p-3 bg-blue-50 dark:bg-gray-700 rounded-lg">
-            <div className="w-10 h-10 bg-blue-100 dark:bg-gray-600 rounded-full flex items-center justify-center">
-              <i className="fas fa-user text-blue-600 dark:text-blue-400"></i>
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-700/30">
+          <div className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+            <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/40 rounded-full flex items-center justify-center">
+              <i className="fas fa-user text-indigo-600 dark:text-indigo-400"></i>
             </div>
             <div className="flex-1">
-              <p className="font-medium text-sm truncate dark:text-gray-200">{user.name}</p>
-              <p className="text-xs text-gray-600 dark:text-gray-400 capitalize">{user.role}</p>
+              <p className="font-bold text-sm truncate dark:text-gray-100">{user.name}</p>
+              <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider">{user.role}</p>
             </div>
             <button 
               onClick={handleLogout}
-              className="p-2 hover:bg-blue-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+              className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 rounded-lg transition-colors"
               title="Logout"
             >
-              <i className="fas fa-sign-out-alt text-gray-600 dark:text-gray-400"></i>
+              <i className="fas fa-sign-out-alt"></i>
             </button>
+          </div>
+          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700/50 flex flex-col items-center space-y-1">
+            <div className="flex items-center space-x-1">
+              <span className="text-[8px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Powered by</span>
+              <span className="text-[11px] font-black tracking-tighter text-indigo-500 dark:text-indigo-400">RapidBizz</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <span className="text-[8px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Developed by</span>
+              <span className="text-[11px] font-black tracking-tight text-gray-800 dark:text-gray-200">
+                Triplestack <span className="text-indigo-600 dark:text-indigo-400 italic font-black">X</span>
+              </span>
+            </div>
           </div>
         </div>
       </div>

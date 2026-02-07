@@ -38,6 +38,10 @@ const register = async (req, res) => {
       });
     }
 
+    // Find default organization
+    const Organization = require('../models/organization.model');
+    const defaultOrg = await Organization.findOne({ slug: 'default' });
+
     // Create user
     const user = await User.create({
       name,
@@ -45,6 +49,7 @@ const register = async (req, res) => {
       password, // Will be automatically hashed by pre-save middleware
       vessel: vessel || '',
       role: role || 'user', // Default to 'user' if not specified
+      orgId: defaultOrg ? defaultOrg._id : undefined
     });
 
     // Generate token

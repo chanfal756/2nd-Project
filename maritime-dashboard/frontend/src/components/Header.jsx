@@ -8,6 +8,22 @@ const Header = () => {
 
   const [currentTime, setCurrentTime] = useState(new Date());
 
+  const [isDark, setIsDark] = useState(() => {
+    if (localStorage.getItem('theme') === 'dark') return true;
+    if (localStorage.getItem('theme') === 'light') return false;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDark]);
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -156,43 +172,6 @@ const Header = () => {
               <button 
                 onClick={() => {
                   Swal.fire({
-                    title: 'Create New Report',
-                    html: `
-                      <div class="text-left">
-                        <label class="block text-sm font-medium mb-1">Report Type</label>
-                        <select id="swal-type" class="w-full p-2 border rounded-md mb-4 outline-none focus:ring-2 focus:ring-blue-500">
-                          <option>Noon Report</option>
-                          <option>Arrival Report</option>
-                          <option>Departure Report</option>
-                          <option>Oil Record Book</option>
-                        </select>
-                        <label class="block text-sm font-medium mb-1">Remarks</label>
-                        <textarea id="swal-remarks" class="w-full p-2 border rounded-md outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter notes..."></textarea>
-                      </div>
-                    `,
-                    icon: 'info',
-                    showCancelButton: true,
-                    confirmButtonText: 'Submit Report',
-                    confirmButtonColor: '#2563eb',
-                    preConfirm: () => {
-                      return {
-                        type: document.getElementById('swal-type').value,
-                        remarks: document.getElementById('swal-remarks').value
-                      }
-                    }
-                  }).then((result) => {
-                    if (result.isConfirmed) {
-                      Swal.fire('Success', 'Report has been generated and queued for transmission.', 'success');
-                    }
-                  });
-                }}
-                className="btn btn-primary bg-white text-blue-900 border-none hover:bg-blue-50"
-              >
-                <i className="fas fa-plus mr-2"></i> New Report
-              </button>
-              <button 
-                onClick={() => {
-                  Swal.fire({
                     title: '<div class="text-left font-bold text-lg mb-2">Vessel Alerts</div>',
                     html: `
                       <div class="text-left space-y-3">
@@ -236,6 +215,15 @@ const Header = () => {
               >
                 <i className="fas fa-bell"></i>
                 <span className="notification-dot"></span>
+              </button>
+              
+              {/* Dark Mode Toggle */}
+              <button 
+                onClick={() => setIsDark(!isDark)}
+                className="btn btn-secondary bg-blue-800/30 text-white hover:bg-blue-700/50 border-none w-10 p-0 flex items-center justify-center"
+                title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              >
+                <i className={`fas ${isDark ? 'fa-sun text-yellow-300' : 'fa-moon'}`}></i>
               </button>
             </div>
           </div>

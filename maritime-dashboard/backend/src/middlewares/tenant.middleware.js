@@ -8,22 +8,33 @@ const tenantMiddleware = (req, res, next) => {
     return res.status(401).json({ message: 'Authentication required for tenant context' });
   }
 
-  // 2. Extract orgId from user context (injected by JWT protect middleware)
-  const orgId = req.user.orgId;
+  // 2. Extract orgId from user context
+  let orgId = req.user.orgId;
 
   if (!orgId) {
-    return res.status(403).json({ 
-      message: 'User does not belong to any organization. Access denied.' 
+    // Development Fallback: Assign to default organization if missing
+    // In production, this might be handled differently
+    const Organization = require('../models/organization.model');
+    Organization.findOne({ slug: 'default' }).then(org => {
+      if (org) {
+        req.user.orgId = org._id;
+        req.tenantId = org._id;
+        // Optionally update the user record for persistence
+        req.user.save().catch(err => console.error('Failed to auto-assign orgId:', err));
+        next();
+      } else {
+        return res.status(403).json({ 
+          message: 'User does not belong to any organization and no default found. Access denied.' 
+        });
+      }
+    }).catch(err => {
+      return res.status(500).json({ message: 'Error establishing tenant context' });
     });
+    return;
   }
 
-  // 3. Inject tenant context into request for use in controllers/services
-  // This allows us to do: Vessel.find({ orgId: req.tenantId })
+  // 3. Inject tenant context into request
   req.tenantId = orgId;
-
-  // 4. Global query helper (Optional: useful if using a library that supports it)
-  // For standard Mongoose, we'll manually pass req.tenantId to services.
-  
   next();
 };
 

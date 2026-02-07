@@ -2,6 +2,60 @@ import React from 'react';
 import Swal from 'sweetalert2';
 
 const Dashboard = () => {
+  const [stats, setStats] = React.useState({
+    engineHours: 0,
+    vessels: 0,
+    alerts: 0,
+    efficiency: 98.2
+  });
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const api = (await import('../services/api')).default;
+      const [vesselsRes, alertsRes] = await Promise.all([
+        api.get('/vessels'),
+        api.get('/alerts')
+      ]);
+      
+      setStats({
+        vessels: vesselsRes.data.count || 0,
+        alerts: alertsRes.data.data?.filter(a => !a.acknowledgedBy?.length).length || 0,
+        engineHours: 12458, // Mocked for now, usually aggregates from maintenance
+        efficiency: 98.2
+      });
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExport = (type) => {
+    const data = [
+      ['Vessel Name', 'IMO', 'Status', 'Last Sync'],
+      ['MV Ocean Star', '9123456', 'Active', new Date().toISOString()],
+      ['MV North Voyager', '9234567', 'Maintenance', new Date().toISOString()]
+    ];
+    
+    if (type === 'excel') {
+      const csvContent = "data:text/csv;charset=utf-8," + data.map(e => e.join(",")).join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `Fleet_Report_${new Date().toLocaleDateString()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      Swal.fire('Exported!', 'Excel/CSV report has been downloaded.', 'success');
+    } else {
+      window.print();
+    }
+  };
+
   const handleSubmitReport = () => {
     Swal.fire({
       title: 'Submit Daily Report?',
@@ -112,19 +166,72 @@ const Dashboard = () => {
         </div>
 
         <div 
+          onClick={() => window.location.href = '/vessels'}
+          className="card stat-card p-4 cursor-pointer hover:shadow-lg transition-shadow"
+        >
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <p className="text-gray-500 text-sm">Active Fleet Vessels</p>
+              <h3 className="text-2xl font-bold text-gray-800 mt-1">{stats.vessels} Ships</h3>
+            </div>
+            <div className="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+              <i className="fas fa-ship"></i>
+            </div>
+          </div>
+          <p className="text-xs text-gray-500">Track all ships in real-time</p>
+        </div>
+
+        <div 
+          onClick={() => {
+            Swal.fire({
+              title: 'Fuel Efficiency Data',
+              html: `
+                <div class="text-left text-sm">
+                  <div class="flex justify-between border-b py-2"><span>M/E Consumption:</span> <strong>24.5 MT/day</strong></div>
+                  <div class="flex justify-between border-b py-2"><span>A/E Consumption:</span> <strong>3.2 MT/day</strong></div>
+                  <div class="flex justify-between py-2 text-green-600"><span>Efficiency:</span> <strong>${stats.efficiency}%</strong></div>
+                </div>
+              `,
+              icon: 'success',
+              confirmButtonText: 'View Consumption Reports',
+              confirmButtonColor: '#10b981'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                 window.location.href = '/reports';
+              }
+            });
+          }}
+          className="card stat-card success p-4 cursor-pointer hover:shadow-lg transition-all hover:-translate-y-1"
+        >
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <p className="text-gray-500 text-sm">Fuel Efficiency (Monthly)</p>
+              <h3 className="text-2xl font-bold text-gray-800 mt-1">{stats.efficiency}%</h3>
+            </div>
+            <div className="w-10 h-10 rounded-lg bg-green-100 text-green-600 flex items-center justify-center">
+              <i className="fas fa-leaf"></i>
+            </div>
+          </div>
+          <div className="flex items-center text-xs text-green-600 font-medium">
+            <i className="fas fa-arrow-up mr-1 text-[8px]"></i>
+            <span onClick={(e) => { e.stopPropagation(); window.location.href = '/daily-reports'; }} className="hover:underline">View Consumption Trends</span>
+          </div>
+        </div>
+
+        <div 
           onClick={() => window.location.href = '/alerts'}
           className="card stat-card warning p-4 cursor-pointer hover:shadow-lg transition-shadow"
         >
           <div className="flex justify-between items-start mb-4">
             <div>
               <p className="text-gray-500 text-sm">Pending Alerts</p>
-              <h3 className="text-2xl font-bold text-gray-800 mt-1">3</h3>
+              <h3 className="text-2xl font-bold text-gray-800 mt-1">{stats.alerts}</h3>
             </div>
             <div className="w-10 h-10 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center">
               <i className="fas fa-bell"></i>
             </div>
           </div>
-          <p className="text-xs text-red-500 font-medium">1 High Priority Alert</p>
+          <p className="text-xs text-red-500 font-medium">Click to view urgency levels</p>
         </div>
       </div>
 
@@ -140,8 +247,8 @@ const Dashboard = () => {
                   title: 'Activity Options',
                   input: 'radio',
                   inputOptions: {
-                    'export': 'Export Activity Logs (CSV)',
-                    'filter': 'Filter Events',
+                    'export-csv': 'Export to Excel (CSV)',
+                    'export-pdf': 'Export to PDF',
                     'clear': 'Clear History'
                   },
                   inputValidator: (value) => {
@@ -149,16 +256,16 @@ const Dashboard = () => {
                       return 'You need to choose an option!'
                     }
                   },
-                  inputValue: 'export',
+                  inputValue: 'export-csv',
                   showCancelButton: true,
                   confirmButtonText: 'Proceed',
                   confirmButtonColor: '#2563eb'
                 }).then((result) => {
                   if (result.isConfirmed) {
-                    if(result.value === 'export') {
-                      Swal.fire('Exporting...', 'The activity log is being prepared for download.', 'success');
-                    } else if (result.value === 'filter') {
-                      Swal.fire('Filter', 'Filter modal would open here.', 'info');
+                    if(result.value === 'export-csv') {
+                      handleExport('excel');
+                    } else if (result.value === 'export-pdf') {
+                      handleExport('pdf');
                     } else if (result.value === 'clear') {
                       Swal.fire('Cleared', 'Activity history has been cleared.', 'success');
                     }

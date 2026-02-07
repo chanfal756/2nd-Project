@@ -208,7 +208,15 @@ const Inventory = () => {
       </div>
 
       <div className="card p-6">
-        <h3 className="font-bold text-gray-800 mb-4 text-lg">Lubricating Oils</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-bold text-gray-800 text-lg flex items-center gap-2">
+            <i className="fas fa-flask-vial text-blue-600"></i>
+            Lubricating Oils & Additives
+          </h3>
+          <span className="text-xs bg-red-100 text-red-600 px-3 py-1 rounded-full font-bold flex items-center gap-1 animate-pulse">
+            <i className="fas fa-exclamation-triangle"></i> Reorder Alert active
+          </span>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[
             { name: 'System Oil', value: '4,500 L', status: 'Optimal' },
@@ -216,12 +224,29 @@ const Inventory = () => {
             { name: 'Aux Engine Oil', value: '1,200 L', status: 'Critical' },
             { name: 'Gearbox Oil', value: '600 L', status: 'Optimal' },
           ].map((item, i) => (
-            <div key={i} className="border border-gray-100 p-4 rounded-xl hover:shadow-md transition-shadow">
-              <p className="text-sm text-gray-500">{item.name}</p>
-              <p className="text-xl font-bold my-1">{item.value}</p>
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${item.status === 'Critical' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
-                {item.status}
-              </span>
+            <div 
+              key={i} 
+              className={`p-4 rounded-xl transition-all border ${
+                item.status === 'Critical' 
+                ? 'bg-red-50 border-red-200 shadow-sm ring-1 ring-red-500 ring-opacity-50' 
+                : 'bg-white border-gray-100 hover:shadow-md'
+              }`}
+            >
+              <div className="flex justify-between items-start mb-2">
+                <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">{item.name}</p>
+                {item.status === 'Critical' && <i className="fas fa-exclamation-circle text-red-500"></i>}
+              </div>
+              <p className="text-2xl font-bold text-gray-800">{item.value}</p>
+              <div className="mt-3 flex items-center justify-between">
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold uppercase ${
+                  item.status === 'Critical' ? 'bg-red-500 text-white' : 'bg-green-100 text-green-600'
+                }`}>
+                  {item.status}
+                </span>
+                {item.status === 'Critical' && (
+                  <button className="text-[10px] text-red-600 font-bold hover:underline">REORDER NOW</button>
+                )}
+              </div>
             </div>
           ))}
         </div>

@@ -1,6 +1,6 @@
-# 🚢 Maritime Dashboard - Complete Authentication System
+# 🚢 LubeTrack Marine - Complete Vessel Operations System
 
-A modern, full-stack **Maritime Vessel Management Dashboard** with secure JWT authentication, built for ship captains and crew to manage daily operations, navigation, inventory, and maintenance.
+A modern, full-stack **LubeTrack Marine** system with secure JWT authentication, built for ship captains and fleet managers.
 
 ---
 
@@ -22,7 +22,7 @@ A modern, full-stack **Maritime Vessel Management Dashboard** with secure JWT au
 
 ## 🎯 Overview
 
-**Maritime Dashboard** is a production-ready web application designed for maritime vessel operations. It provides a centralized platform for ship captains to manage:
+**LubeTrack Marine** is a production-ready web application designed for maritime vessel operations. It provides a centralized platform for managing:
 
 - **Daily Reports** - Submit and track noon reports, arrival/departure logs
 - **Oil & Fuel Inventory** - Monitor fuel consumption and lubricating oils
@@ -77,12 +77,21 @@ A modern, full-stack **Maritime Vessel Management Dashboard** with secure JWT au
 ✅ **Alerts** - System notifications and warnings  
 ✅ **Settings** - User profile and preferences  
 
-### **UI/UX**
-✅ Professional maritime-themed design  
-✅ Responsive layout (Desktop + Mobile ready)  
-✅ Loading states and error handling  
-✅ Smooth animations and transitions  
-✅ Tailwind CSS v4 styling  
+### **Key System Features**
+🚀 **Mobile and desktop access** - Fully responsive UI for tablets, phones, and workstations.  
+🔒 **Secure login and ship access** - Multi-tenant security ensuring data privacy per organization.  
+📍 **GPS position recording** - Precise tracking of vessel coordinates and voyage progress.  
+⛽ **Multiple fuel and oil types** - Support for HFO, LFO, MGO, and various lubricating oils.  
+📊 **Real-time dashboard** - Live fleet analytics and operational status at a glance.  
+📄 **PDF and Excel export** - Export compliance reports and operational logs with one click.  
+🔔 **Automated notifications** - Smart threshold monitoring and instant system alerts.
+
+### **📊 System Output & Reporting**
+*   **Daily ship reports** - Structured digital logs for noon, arrival, and departure comms.
+*   **Fleet performance summaries** - High-level analytics for executives and fleet managers.
+*   **Fuel and oil consumption trends** - Interactive charts showing operational efficiency over time.
+*   **Inventory and reorder alerts** - Automated warnings when consumables reach critical levels.
+*   **Compliance and audit logs** - Immutable history of report approvals and system changes.
 
 ---
 
@@ -506,7 +515,9 @@ This project is licensed under the **ISC License**.
 
 ## 👨‍💻 Developer
 
-**Project:** Maritime Dashboard  
+**Powered by:** RapidBizz  
+**Developed by:** Triplestack X  
+**Project:** LubeTrack Marine  
 **Version:** 2.1.0  
 **Last Updated:** January 2026  
 
